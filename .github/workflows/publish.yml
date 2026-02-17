@@ -7,6 +7,6 @@ on:
 
 jobs:
   publish:
-    uses: your-org/surety-actions/.github/workflows/publish.yml@main
+    uses: elenakulgavaya/surety-actions/.github/workflows/publish.yml@main
     secrets:
       PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}

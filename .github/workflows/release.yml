@@ -7,4 +7,4 @@ on:
 
 jobs:
   release:
-    uses: your-org/surety-actions/.github/workflows/semantic-release.yml@main
+    uses: elenakulgavaya/surety-actions/.github/workflows/semantic-release.yml@main
