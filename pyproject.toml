@@ -3,8 +3,6 @@ requires = [
     "setuptools>=42",
     "setuptools-scm",
     "wheel",
-    "Faker==11.3.0",
-    "pytz==2021.3",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -18,7 +16,7 @@ authors = [
     {name="Elena Kulgavaya", email="elena.kulgavaya@gmail.com"}
 ]
 dynamic = ["version"]
-keywords = ["testing", "automation", "python", "pytest plugin"]
+keywords = ["testing", "automation", "python"]
 dependencies = [
     "Faker==11.3.0",
     "pytz==2021.3",
@@ -36,8 +34,15 @@ where = ["src"]
 "" = "src"
 
 [tool.setuptools_scm]
-version_scheme = "guess-next-dev"
-local_scheme = "no-local-version"
+write_to = "src/surety/_version.py"
+
+[tool.semantic_release]
+version_source = "tag"
+branch = "main"
+changelog_file = "CHANGELOG.md"
+build_command = "python -m build"
+upload_to_pypi = false
+upload_to_release = true
 
 [project.urls]
 "Bug Tracker" = "https://github.com/elenakulgavaya/fild/issues"
