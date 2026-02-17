@@ -1,0 +1,43 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "setuptools-scm",
+    "wheel",
+    "Faker==11.3.0",
+    "pytz==2021.3",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "surety"
+description = "Contract-driven service interaction modeling and test generation."
+requires-python = ">=3.7"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    {name="Elena Kulgavaya", email="elena.kulgavaya@gmail.com"}
+]
+dynamic = ["version"]
+keywords = ["testing", "automation", "python", "pytest plugin"]
+dependencies = [
+    "Faker==11.3.0",
+    "pytz==2021.3",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools_scm]
+version_scheme = "guess-next-dev"
+local_scheme = "no-local-version"
+
+[project.urls]
+"Bug Tracker" = "https://github.com/elenakulgavaya/fild/issues"
