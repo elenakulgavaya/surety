@@ -5,6 +5,7 @@ on:
     branches:
       - main
 
+
 jobs:
   release:
     uses: elenakulgavaya/surety-actions/.github/workflows/semantic-release.yml@main
