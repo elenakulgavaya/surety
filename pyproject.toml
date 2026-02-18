@@ -34,7 +34,8 @@ where = ["src"]
 "" = "src"
 
 [tool.setuptools_scm]
-write_to = "src/surety/_version.py"
+version_scheme = "guess-next-dev"
+local_scheme = "no-local-version"
 
 [project.urls]
 "Bug Tracker" = "https://github.com/elenakulgavaya/surety/issues"
