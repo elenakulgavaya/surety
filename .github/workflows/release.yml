@@ -1,4 +1,4 @@
-name: Release
+name: Auto Release
 
 on:
   push:
@@ -9,5 +9,5 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    uses: elenakulgavaya/surety-actions/.github/workflows/semantic-release.yml@main
+  tag:
+    uses: elenakulgavaya/surety-actions/.github/workflows/auto-tag.yml@main

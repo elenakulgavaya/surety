@@ -36,15 +36,5 @@ where = ["src"]
 [tool.setuptools_scm]
 write_to = "src/surety/_version.py"
 
-[tool.semantic_release]
-version_source = "tag"
-tag_format = "v{version}"
-upload_to_release = true
-upload_to_pypi = false
-
-[tool.semantic_release.branches.main]
-match = "main"
-prerelease = false
-
 [project.urls]
 "Bug Tracker" = "https://github.com/elenakulgavaya/surety/issues"
