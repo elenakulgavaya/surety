@@ -11,3 +11,5 @@ permissions:
 jobs:
   release:
     uses: elenakulgavaya/surety-actions/.github/workflows/semantic-release.yml@main
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
