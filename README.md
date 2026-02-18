@@ -19,6 +19,7 @@ Most tools answer:
 Surety answers:
 "Is this contract healthy?"
 
+
 ## Keywords
 
 AI contract testing, API contract validation, microservices testing, JSON schema validation, breaking change detection.
