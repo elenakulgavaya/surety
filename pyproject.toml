@@ -37,11 +37,14 @@ where = ["src"]
 write_to = "src/surety/_version.py"
 
 [tool.semantic_release]
-branch = "main"
 version_source = "tag"
 tag_format = "v{version}"
 upload_to_release = true
 upload_to_pypi = false
+
+[tool.semantic_release.branches.main]
+match = "main"
+prerelease = false
 
 [project.urls]
 "Bug Tracker" = "https://github.com/elenakulgavaya/surety/issues"
