@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from surety.sdk import Array, Dictionary, String
+from surety import Array, Dictionary, String
 
 
 def test_dictionary_no_generate_value():

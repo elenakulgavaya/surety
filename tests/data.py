@@ -1,9 +1,7 @@
 import random
 import string
 
-from surety.sdk.array import Array, Set
-from surety.sdk.dictionary import Dictionary
-from surety.sdk.field import Field
+from surety import Array, Dictionary, Field, Set
 
 
 class TypeOne(Field):

@@ -1,5 +1,4 @@
 from surety.sdk import fakeable
-
 from surety.sdk.fakeable import (
     Fakeable, fake_string_attr, generate_float, generate_string,
 )
