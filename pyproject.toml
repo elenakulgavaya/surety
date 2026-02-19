@@ -28,10 +28,11 @@ classifiers = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["src"]
+where = ["."]
+include = ["surety*"]
 
-[tool.setuptools.package-dir]
-"" = "src"
+#[tool.setuptools.package-dir]
+#"" = "src"
 
 [tool.setuptools_scm]
 version_scheme = "guess-next-dev"

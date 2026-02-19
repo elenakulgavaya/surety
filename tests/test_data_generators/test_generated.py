@@ -1,4 +1,4 @@
-from surety.sdk.array import Array
+from surety import Array
 from tests.data import Base, ComposeBase, Mix, Optional, TypeOne
 
 

@@ -1,4 +1,4 @@
-from surety.sdk import Array, Set, String
+from surety import Array, Set, String
 
 
 def test_array_no_generate_value():

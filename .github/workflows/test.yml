@@ -23,7 +23,7 @@ jobs:
         pip install -r requirements/test.txt
     - name: Running tests
       run: |
-        pytest --cache-clear --junitxml ./test-report.xml --cov-report term-missing:skip-covered --cov src > pytest-coverage.txt
+        pytest --cache-clear --junitxml ./test-report.xml --cov-report term-missing:skip-covered --cov surety > pytest-coverage.txt
 
     - name: Pytest coverage comment
       if: always()

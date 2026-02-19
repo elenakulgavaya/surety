@@ -3,7 +3,7 @@ import uuid
 
 from datetime import datetime
 
-from surety.sdk import (
+from surety import (
     Bool, DateTime, Decimal, Enum, Float, Int, Raw, String, StringDecimal,
     Uuid, Dictionary
 )
