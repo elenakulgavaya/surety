@@ -7,7 +7,7 @@ def test_config_module_is_registered(monkeypatch):
     fake_module = types.ModuleType('surety_config.config')
     monkeypatch.setitem(sys.modules, 'surety_config.config', fake_module)
 
-    sys.modules.pop('my_module', None)
+    sys.modules.pop('surety.config', None)
 
     import surety #pylint: disable=import-outside-toplevel
     importlib.reload(surety)
