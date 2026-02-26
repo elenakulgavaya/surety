@@ -10,8 +10,9 @@ build-backend = "setuptools.build_meta"
 name = "surety"
 description = "Contract-driven service interaction modeling and test generation."
 requires-python = ">=3.7"
-readme = "README.md"
-license = { text = "MIT" }
+readme = "README.rst"
+license = "MIT"
+license-files = [ "LICENSE" ]
 authors = [
     {name="Elena Kulgavaya", email="elena.kulgavaya@gmail.com"}
 ]
@@ -22,17 +23,20 @@ dependencies = [
     "pytz==2021.3",
 ]
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Intended Audience :: Developers",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Utilities",
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["surety*"]
-
-#[tool.setuptools.package-dir]
-#"" = "src"
 
 [tool.setuptools_scm]
 version_scheme = "guess-next-dev"
