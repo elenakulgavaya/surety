@@ -1,12 +1,19 @@
-Contracts
-=========
+Schemas and Contracts
+=====================
 
-A contract is a Python class that defines the expected structure and semantics
-of data. Contracts are explicit, reusable, and transport-agnostic — the same
-contract can validate an API response, a database record, or a UI state.
+Surety separates two concepts:
 
-Defining a Contract
--------------------
+- A **schema** is a Python class that defines the expected structure of data —
+  fields, types, and constraints. Schemas inherit from ``Dictionary`` (or
+  ``Field`` for individual values). Schemas are transport-agnostic: the same
+  schema can validate an API response, a database record, or a UI state.
+
+- A **contract** adds communication semantics on top of a schema — such as an
+  API method and endpoint path, a database table reference, or an event name.
+  Contracts live in extension packages like ``surety-api`` and ``surety-db``.
+
+Defining a Schema
+-----------------
 
 Inherit from ``Dictionary`` and declare fields as class attributes:
 
@@ -14,7 +21,7 @@ Inherit from ``Dictionary`` and declare fields as class attributes:
 
    from surety import Dictionary, String, Int, Bool
 
-   class WidgetContract(Dictionary):
+   class Widget(Dictionary):
        WidgetId = Int(name='widget_id')
        Name = String(name='name')
        Description = String(name='description', required=False)
@@ -47,38 +54,38 @@ Every field type accepts these parameters:
      - ``None``
      - Static value or callable used instead of auto-generation.
 
-Nested Contracts
+Nested Schemas
 ----------------
 
-Contracts can nest arbitrarily to model complex data structures:
+Schemas can nest arbitrarily to model complex data structures:
 
 .. code-block:: python
 
    from surety import Dictionary, String, Int, Array, Bool
    from surety.sdk.fakeable import Fakeable
 
-   class AddressContract(Dictionary):
+   class Address(Dictionary):
        Street = String(name='street', fake_as=Fakeable.StreetAddress)
        City = String(name='city')
        State = String(name='state')
        ZipCode = String(name='zip_code')
 
-   class PaymentMethodContract(Dictionary):
+   class PaymentMethod(Dictionary):
        CardType = String(name='card_type', fake_as=Fakeable.CreditCardProvider)
        LastFour = String(name='last_four', min_len=4, max_len=4)
        IsDefault = Bool(name='is_default')
 
-   class CustomerContract(Dictionary):
+   class Customer(Dictionary):
        CustomerId = Int(name='customer_id', min_val=1000, max_val=99999)
        Email = String(name='email')
-       BillingAddress = AddressContract(name='billing_address')
-       ShippingAddress = AddressContract(name='shipping_address')
-       PaymentMethods = Array(PaymentMethodContract, name='payment_methods',
-                              min_len=1, max_len=3)
+       BillingAddress = Address(name='billing_address')
+       ShippingAddress = Address(name='shipping_address')
+       PaymentMethods = Array(PaymentMethod, name='payment_methods', min_len=1,
+                              max_len=3)
 
 .. code-block:: python
 
-   customer = CustomerContract(is_full=True)
+   customer = Customer(is_full=True)
    print(customer.value)
    # {
    #     'customer_id': 48271,
@@ -104,13 +111,13 @@ Wraps a field type to represent a list of elements:
 
    from surety import Array, Dictionary, String, Int
 
-   class TagContract(Dictionary):
+   class Tag(Dictionary):
        TagId = Int(name='tag_id')
        Label = String(name='label', max_len=30)
 
-   class ArticleContract(Dictionary):
+   class Article(Dictionary):
        Title = String(name='title')
-       Tags = Array(TagContract, name='tags', min_len=1, max_len=5)
+       Tags = Array(Tag, name='tags', min_len=1, max_len=5)
 
 .. list-table::
    :header-rows: 1
@@ -133,7 +140,7 @@ Arrays support indexing, iteration, length, and appending:
 
 .. code-block:: python
 
-   article = ArticleContract()
+   article = Article()
    for tag in article.Tags:
        print(tag.Label.value)
 
@@ -149,7 +156,7 @@ Works like ``Array`` but produces a set of unique elements:
 
    from surety import Set, String
 
-   class PermissionSetContract(Dictionary):
+   class PermissionSet(Dictionary):
        Roles = Set(String, name='roles', min_len=2, max_len=4)
 
 Generation Modes
@@ -164,12 +171,12 @@ generated. Use ``is_full=True`` to include optional fields:
 .. code-block:: python
 
    # Partial — only required fields
-   partial = WidgetContract()
+   partial = Widget()
    print(partial.value)
    # {'widget_id': 7312, 'name': 'RxkPmW'}
 
    # Full — all fields including optional
-   full = WidgetContract(is_full=True)
+   full = Widget(is_full=True)
    print(full.value)
    # {'widget_id': 5094, 'name': 'aQdLnZ', 'description': 'Lorem ipsum', 'deprecated': False}
 
@@ -181,12 +188,12 @@ mode, they receive a value:
 
 .. code-block:: python
 
-   class NullableContract(Dictionary):
+   class Nullable(Dictionary):
        Primary = String(name='primary')
        Secondary = String(name='secondary', allow_none=True)
 
-   NullableContract().value           # {'primary': '...'}
-   NullableContract(is_full=True).value  # {'primary': '...', 'secondary': '...'}
+   Nullable().value           # {'primary': '...'}
+   Nullable(is_full=True).value  # {'primary': '...', 'secondary': '...'}
 
 Default Values
 ^^^^^^^^^^^^^^
@@ -195,7 +202,7 @@ Provide a static value or a callable:
 
 .. code-block:: python
 
-   class ConfigContract(Dictionary):
+   class Config(Dictionary):
        Version = Int(name='version', default=1)
        Region = String(name='region', default='us-east-1')
        RequestId = String(name='request_id', default=lambda: 'req-0001')
@@ -205,9 +212,9 @@ Accessing Values
 
 .. code-block:: python
 
-   contract = WidgetContract()
-   contract.value       # Dict of generated fields only
-   contract.full_value  # Dict of all fields, including None for ungenerated
+   widget = Widget()
+   widget.value       # Dict of generated fields only
+   widget.full_value  # Dict of all fields, including None for ungenerated
 
 Overriding Values
 -----------------
@@ -217,7 +224,7 @@ auto-generated:
 
 .. code-block:: python
 
-   customer = CustomerContract().with_values({
+   customer = Customer().with_values({
        'customer_id': 1,
        'email': 'test@acme.org'
    })
@@ -226,7 +233,7 @@ For nested structures, pass nested dictionaries:
 
 .. code-block:: python
 
-   customer = CustomerContract().with_values({
+   customer = Customer().with_values({
        'billing_address': {'city': 'Portland', 'state': 'OR'}
    })
 
@@ -234,7 +241,7 @@ For array fields, pass a list:
 
 .. code-block:: python
 
-   article = ArticleContract().with_values({
+   article = Article().with_values({
        'tags': [
            {'tag_id': 10, 'label': 'python'},
            {'tag_id': 20, 'label': 'testing'}
@@ -248,11 +255,11 @@ Call ``generate()`` to regenerate all field values:
 
 .. code-block:: python
 
-   contract = CustomerContract()
-   first_email = contract.Email.value
+   customer = Customer()
+   first_email = customer.Email.value
 
-   contract.generate()
-   second_email = contract.Email.value
+   customer.generate()
+   second_email = customer.Email.value
    # first_email != second_email
 
 Custom Fields
@@ -274,6 +281,70 @@ Create custom field types by subclassing ``Field`` and implementing
        def generate_value(self):
            return f'{random.randint(0, 9)}.{random.randint(0, 99)}.{random.randint(0, 999)}'
 
-   class ThemeContract(Dictionary):
+   class Theme(Dictionary):
        PrimaryColor = HexColor(name='primary_color')
        ApiVersion = VersionString(name='api_version')
+
+Defining a Contract
+-------------------
+
+A contract binds one or more schemas to communication semantics. Contracts are
+defined in extension packages that provide execution capabilities.
+
+API Contract
+^^^^^^^^^^^^
+
+An API contract (from ``surety-api``) binds request and response schemas to an
+HTTP method and endpoint path:
+
+.. code-block:: python
+
+   from surety.api import ApiContract, HttpMethod
+   from surety import Dictionary, String, Int
+
+   # Schemas — define the shape of data
+   class CreateOrderRequest(Dictionary):
+       ProductId = Int(name='product_id')
+       Quantity = Int(name='quantity', min_val=1, max_val=100)
+
+   class OrderResponse(Dictionary):
+       OrderId = Int(name='order_id')
+       Status = String(name='status', default='pending')
+       Total = String(name='total')
+
+   # Contract — binds schemas to an API endpoint
+   class CreateOrder(ApiContract):
+       method = HttpMethod.POST
+       url = '/api/v2/orders'
+       req_body = CreateOrderRequest
+       resp_body = OrderResponse
+
+The schemas (``CreateOrderRequest``, ``OrderResponse``) define *what the data
+looks like*. The contract (``CreateOrder``) defines *where and how the data is
+exchanged* — the HTTP method, the URL, and which schemas apply to the request
+and response.
+
+Database Contract
+^^^^^^^^^^^^^^^^^
+
+A database contract (from ``surety-db``) binds a schema to a database table via
+a SQLAlchemy model:
+
+.. code-block:: python
+
+   from surety.db import DbModel
+   from surety import String, Int, Bool
+
+   class Warehouse(DbModel):
+       __model__ = WarehouseTable  # SQLAlchemy model — table reference
+
+       WarehouseId = Int(name='id')
+       Name = String(name='name')
+       Capacity = Int(name='capacity', min_val=100, max_val=10000)
+       Active = Bool(name='active')
+
+Here ``Warehouse`` is a contract because it binds the schema fields to a
+specific database table (``WarehouseTable``).
+
+See :doc:`api` and :doc:`db` for full usage details on API and database
+contracts.
