@@ -2,7 +2,7 @@ API Testing (surety-api)
 ========================
 
 The ``surety-api`` extension provides API contracts, HTTP interaction,
-schema-based mocking, and request verification.
+contract-based mocking, and request verification.
 
 .. code-block:: bash
 
@@ -133,7 +133,7 @@ Additional MockServer methods:
    # Reset all expectations
    mock.reset()
 
-Schema-based Mocking
+Contract-based Mocking
 ---------------------
 
 Use ``reply()`` directly on an API contract to mock its endpoint using the
