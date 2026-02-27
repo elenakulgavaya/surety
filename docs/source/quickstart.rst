@@ -1,17 +1,18 @@
 Quick Start
 ===========
 
-Define a Contract
+Define a Schema
 -----------------
 
-A contract is a Python class that inherits from ``Dictionary``. Fields are
-declared as class attributes:
+A schema is a Python class that inherits from ``Dictionary``. Fields are
+declared as class attributes. Schemas define the shape of data — fields,
+types, and constraints:
 
 .. code-block:: python
 
    from surety import Dictionary, String, Int, Bool
 
-   class CustomerContract(Dictionary):
+   class Customer(Dictionary):
        Id = Int(name='customer_id')
        FirstName = String(name='first_name')
        LastName = String(name='last_name')
@@ -24,7 +25,7 @@ Create an instance to auto-generate realistic fake data for every field:
 
 .. code-block:: python
 
-   customer = CustomerContract()
+   customer = Customer()
    print(customer.value)
    # {'customer_id': 7312, 'first_name': 'Margaret', 'last_name': 'Williams', 'active': True}
 
@@ -32,16 +33,16 @@ Override specific values while keeping the rest generated:
 
 .. code-block:: python
 
-   customer = CustomerContract().with_values({
-       CustomerContract.Id.name: 1,
-       CustomerContract.FirstName.name: 'Jane'
+   customer = Customer().with_values({
+       Customer.Id.name: 1,
+       Customer.FirstName.name: 'Jane'
    })
    # customer_id is 1, first_name is 'Jane', last_name and active are auto-generated
 
 Validate Data
 -------------
 
-Use ``surety-diff`` to compare actual data against the contract:
+Use ``surety-diff`` to compare actual data against the schema:
 
 .. code-block:: python
 
@@ -62,8 +63,9 @@ Where to Go Next
 -----------------
 
 - :doc:`philosophy` — understand the design principles
-- :doc:`contracts` — learn about contracts, nesting, and generation modes
+- :doc:`contracts` — learn about schemas, contracts, nesting, and generation modes
 - :doc:`field_types` — explore all available field types
 - :doc:`diff` — comparison rules and validation
-- :doc:`api` — API testing and mocking
+- :doc:`api` — API contracts and mocking
+- :doc:`ui` — browser-based UI testing
 - :doc:`db` — database testing

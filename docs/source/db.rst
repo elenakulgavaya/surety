@@ -61,18 +61,21 @@ Database Types
 Setting Up a Client
 -------------------
 
-Use ``DbClient`` to create a singleton database client:
+Pass a ``PostgresqlDBClient`` (or another supported client) directly to
+``Database``. Connection parameters are typically read from ``surety-config``:
 
 .. code-block:: python
 
-   from surety.db import Database, DbClient, PostgresqlDBClient
+   from surety.db import Database, PostgresqlDBClient
+   from surety.config import Cfg
 
-   db_client = DbClient('warehouse_db', PostgresqlDBClient(
-       host='localhost', port=5432, user='testuser',
-       password='testpass', db='warehouse_test'
+   main_db = Database('main', client=PostgresqlDBClient(
+       host=Cfg.DB.main.host,
+       port=Cfg.DB.main.port,
+       user=Cfg.DB.main.user,
+       password=Cfg.DB.main.password,
+       db=Cfg.DB.main.db
    ))
-
-   db = Database('warehouse_db', db_client)
 
 CRUD Operations
 ---------------

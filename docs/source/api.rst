@@ -1,37 +1,43 @@
 API Testing (surety-api)
 ========================
 
-The ``surety-api`` extension provides HTTP API interaction, schema-based
-mocking, and request verification.
+The ``surety-api`` extension provides API contracts, HTTP interaction,
+schema-based mocking, and request verification.
 
 .. code-block:: bash
 
    pip install surety-api
 
-Defining API Schemas
---------------------
+Defining an API Contract
+------------------------
 
-An API schema binds contracts to an HTTP endpoint:
+An API contract binds request and response schemas to an HTTP endpoint:
 
 .. code-block:: python
 
-   from surety.api import ApiMethod, HttpMethod
+   from surety.api import ApiContract, HttpMethod
    from surety import Dictionary, String, Int
 
+   # Schemas — define data structure
    class CreateOrderRequest(Dictionary):
        ProductId = Int(name='product_id')
-       Quality = Int(name='quantity', min_val=1, max_val=100)
+       Quantity = Int(name='quantity', min_val=1, max_val=100)
 
    class OrderResponse(Dictionary):
        OrderId = Int(name='order_id')
        Status = String(name='status', default='pending')
        Total = String(name='total')
 
-   class CreateOrder(ApiMethod):
+   # Contract — binds schemas to an API endpoint
+   class CreateOrder(ApiContract):
        method = HttpMethod.POST
        url = '/api/v2/orders'
        req_body = CreateOrderRequest
        resp_body = OrderResponse
+
+The schemas (``CreateOrderRequest``, ``OrderResponse``) define *what the data
+looks like*. The contract (``CreateOrder``) defines *where and how the data is
+exchanged*.
 
 Available HTTP methods: ``POST``, ``GET``, ``HEAD``, ``PATCH``, ``DELETE``,
 ``PUT``, ``TRACE``, ``OPTIONS``.
@@ -43,7 +49,7 @@ Use curly braces in the URL and pass ``path_params``:
 
 .. code-block:: python
 
-   class GetOrder(ApiMethod):
+   class GetOrder(ApiContract):
        method = HttpMethod.GET
        url = '/api/v2/orders/{order_id}'
        resp_body = OrderResponse
@@ -130,13 +136,14 @@ Additional MockServer methods:
 Schema-based Mocking
 ---------------------
 
-Use ``reply()`` directly on an ``ApiMethod`` schema:
+Use ``reply()`` directly on an API contract to mock its endpoint using the
+contract's schemas:
 
 .. code-block:: python
 
-   schema = CreateOrder()
-   schema.reply(
-       body=CreateOrderRequestBody(),
+   contract = CreateOrder()
+   contract.reply(
+       body=CreateOrderRequest(),
        status=201
    )
 
@@ -147,13 +154,13 @@ Assert that a mocked endpoint received the expected request:
 
 .. code-block:: python
 
-   schema = CreateOrder()
-   schema.reply(status=201)
+   contract = CreateOrder()
+   contract.reply(status=201)
 
    # ... test logic that triggers the API call ...
 
-   schema.verify_called(
-       expected=CreateOrderResponse()
+   contract.verify_called(
+       expected=OrderResponse()
    )
 
 Verification supports comparison rules:
@@ -162,7 +169,7 @@ Verification supports comparison rules:
 
    from surety.diff.rules import has_some_value
 
-   schema.verify_called(
-       expected=CreateOrderResponse(),
-       rules={CreateOrderResponse.Id.name: has_some_value}
+   contract.verify_called(
+       expected=OrderResponse(),
+       rules={OrderResponse.OrderId.name: has_some_value}
    )

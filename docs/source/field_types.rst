@@ -2,7 +2,8 @@ Field Types
 ===========
 
 Surety provides built-in field types for common data. All types inherit from
-``Field`` and are imported from the top-level ``surety`` package.
+``Field`` and are imported from the top-level ``surety`` package. Use these
+types to define schemas (``Dictionary`` subclasses).
 
 Bool
 ----
@@ -13,7 +14,7 @@ Generates a random boolean value.
 
    from surety import Bool
 
-   class FeatureFlagContract(Dictionary):
+   class FeatureFlag(Dictionary):
        Enabled = Bool(name='enabled')
        Visible = Bool(name='visible')
 
@@ -26,7 +27,7 @@ Generates a random integer within configurable bounds.
 
    from surety import Int
 
-   class PaginationContract(Dictionary):
+   class Pagination(Dictionary):
        Page = Int(name='page', min_val=1, max_val=500)
        PerPage = Int(name='per_page', min_val=10, max_val=100)
 
@@ -53,7 +54,7 @@ Generates a random float with control over integer and fractional digit lengths.
 
    from surety import Float
 
-   class MeasurementContract(Dictionary):
+   class Measurement(Dictionary):
        Temperature = Float(name='temperature', i_len=2, f_len=1,
                            min_val=-40, max_val=60)
        WeightKg = Float(name='weight_kg', f_len=3, positive=True)
@@ -94,7 +95,7 @@ for money or precision-sensitive fields.
 
    from surety import Decimal, StringDecimal
 
-   class InvoiceLineContract(Dictionary):
+   class InvoiceLine(Dictionary):
        Amount = Decimal(name='amount', i_len=4, f_len=2, positive=True)
        FormattedAmount = StringDecimal(name='formatted_amount', f_len=2)
 
@@ -116,7 +117,7 @@ automatically.
 
    from surety import String
 
-   class ContactContract(Dictionary):
+   class Contact(Dictionary):
        Email = String(name='email')              # Faker-generated email
        City = String(name='city')                # Faker-generated city
        Nickname = String(name='nickname', min_len=3, max_len=20)
@@ -126,7 +127,7 @@ name:
 
 .. code-block:: python
 
-   class ProfileContract(Dictionary):
+   class Profile(Dictionary):
        Handle = String(name='handle', fake_as='user_name')
        Bio = String(name='bio', fake_as='sentence', max_len=200)
 
@@ -156,7 +157,7 @@ Generates a UUID v4 string.
 
    from surety import Uuid
 
-   class SessionContract(Dictionary):
+   class Session(Dictionary):
        SessionId = Uuid(name='session_id')
        TraceId = Uuid(name='trace_id')
 
@@ -170,7 +171,7 @@ Generates a random UTC datetime. The output format is configurable.
    from surety import DateTime
    from surety.sdk.dates import Pattern
 
-   class EventContract(Dictionary):
+   class Event(Dictionary):
        CreatedAt = DateTime(name='created_at')
        DateOnly = DateTime(name='date_only', date_format=Pattern.DATE)
 
@@ -189,7 +190,7 @@ DateTime fields support timezone conversion:
 
 .. code-block:: python
 
-   event = EventContract()
+   event = Event()
    est_value = event.CreatedAt.to_format(
        Pattern.DATETIME_DELIM_T_WITH_ZONE, new_tz='US/Eastern'
    )
@@ -204,7 +205,7 @@ for metadata or freeform fields.
 
    from surety import Raw
 
-   class AuditContract(Dictionary):
+   class Audit(Dictionary):
        Metadata = Raw(name='metadata')
 
 Calling ``with_values`` on a ``Raw`` field that already has a value **merges**
@@ -226,11 +227,11 @@ Subclass ``Enum`` and define class-level attributes for each allowed value:
        Delivered = 'delivered'
        Cancelled = 'cancelled'
 
-   class OrderContract(Dictionary):
+   class Order(Dictionary):
        Status = OrderStatus(name='status')
 
    # Exclude specific values during generation
-   class ActiveOrderContract(Dictionary):
+   class ActiveOrder(Dictionary):
        Status = OrderStatus(name='status', exclude=(OrderStatus.Cancelled,))
 
 Use ``to_list()`` to get all possible values:

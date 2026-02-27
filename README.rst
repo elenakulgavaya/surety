@@ -33,21 +33,27 @@ Contract-driven testing for Python.
 Surety makes contract-based testing simple and readable.
 
 The ``surety`` framework replaces scattered assertions with explicit
-**contracts** — Python classes that define expected data structures, generate
-realistic test data, and validate real responses deterministically.
+**schemas** and **contracts** — Python classes that define expected data
+structures, generate realistic test data, and validate real responses
+deterministically.
+
+A **schema** is a ``Dictionary`` subclass that defines the shape of data —
+fields, types, and constraints. A **contract** adds communication semantics
+on top of a schema — such as an API method and path, an event name, or a
+database table reference.
 
 
 .. code-block:: python
 
    from surety import Dictionary, String, Int, Bool
 
-   class CustomerContract(Dictionary):
+   class Customer(Dictionary):
        Id = Int(name='customer_id', min_val=1000, max_val=99999)
        Email = String(name='email')
        FirstName = String(name='first_name')
        Active = Bool(name='active')
 
-   customer = CustomerContract()
+   customer = Customer()
    print(customer.value)
    # {'customer_id': 48271, 'email': 'jane.doe@example.com', 'first_name': 'Margaret', 'active': True}
 
@@ -55,11 +61,13 @@ realistic test data, and validate real responses deterministically.
 Features
 --------
 
-- **Contract-first** — define expected behavior as reusable Python classes, not scattered assertions
+- **Schema-first** — define expected data structures as reusable Python classes, not scattered assertions
+- **Contracts** — bind schemas to communication semantics (API endpoints, database tables, events)
 - **Data generation** — auto-generate realistic test data using `Faker <https://faker.readthedocs.io/>`_ with 80+ providers
-- **Transport-agnostic** — the same contract validates API responses, database records, and UI state
+- **Transport-agnostic** — the same schema validates API responses, database records, and UI state
 - **Structured diffs** — precise mismatch reporting with custom comparison rules (via ``surety-diff``)
-- **API testing** — HTTP interaction, schema-based mocking, and request verification (via ``surety-api``)
+- **API testing** — HTTP contracts, schema-based mocking, and request verification (via ``surety-api``)
+- **UI testing** — Selenium-based browser automation with page objects (via ``surety-ui``)
 - **Database testing** — PostgreSQL, MySQL, SQLite, and Cassandra support (via ``surety-db``)
 - **Field types** — ``Bool``, ``Int``, ``Float``, ``Decimal``, ``String``, ``Uuid``, ``DateTime``, ``Enum``, ``Array``, and more
 - **Extensible** — create custom field types, comparison rules, and execution adapters
@@ -79,6 +87,7 @@ Optional extensions:
 
    pip install surety-diff      # Structured comparison engine
    pip install surety-api       # HTTP API interaction and mocking
+   pip install surety-ui        # Browser-based UI testing with Selenium
    pip install surety-db        # Database interaction layer
    pip install surety-config    # YAML-based configuration
 
@@ -86,25 +95,25 @@ Optional extensions:
 Quick Example
 --------------
 
-Define a contract, generate data, and validate:
+Define a schema, generate data, and validate:
 
 .. code-block:: python
 
    from surety import Dictionary, String, Int, Array
    from surety.diff import compare
 
-   # Define contracts
-   class AddressContract(Dictionary):
+   # Define schemas
+   class Address(Dictionary):
        City = String(name='city')
        ZipCode = String(name='zip_code', fake_as='zipcode')
 
-   class OrderContract(Dictionary):
+   class Order(Dictionary):
        Id = Int(name='order_id')
        Status = String(name='status', default='pending')
-       ShippingAddress = AddressContract(name='shipping_address')
+       ShippingAddress = Address(name='shipping_address')
 
    # Generate test data
-   order = OrderContract()
+   order = Order()
    print(order.value)
    # {'order_id': 7312, 'status': 'pending', 'shipping_address': {'city': 'Portland', 'zip_code': '97201'}}
 
@@ -115,9 +124,9 @@ Override specific values while keeping the rest auto-generated:
 
 .. code-block:: python
 
-   order = OrderContract().with_values({
+   order = Order().with_values({
        Order.Id.name: 1,
-       Order.ShippingAddress.name: {AddressContract.City.name: 'Seattle'}
+       Order.ShippingAddress.name: {Address.City.name: 'Seattle'}
    })
 
 Use comparison rules for dynamic fields:
@@ -145,15 +154,15 @@ Surety separates three concerns:
 .. list-table::
    :widths: 25 25 50
 
-   * - **Contracts**
+   * - **Schemas**
      - ``surety``
-     - Define expectations and generate test data
-   * - **Execution**
-     - ``surety-api``, ``surety-db``
-     - Perform HTTP and database interactions
+     - Define data structures and generate test data
+   * - **Contracts & Execution**
+     - ``surety-api``, ``surety-db``, ``surety-ui``
+     - Bind schemas to endpoints, tables, and pages; perform interactions
    * - **Validation**
      - ``surety-diff``
-     - Compare actual data against contracts
+     - Compare actual data against schemas
 
 
 Documentation

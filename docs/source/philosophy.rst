@@ -1,9 +1,9 @@
 Philosophy
 ==========
 
-Surety is built around a single idea: **contracts define behavior.**
+Surety is built around a single idea: **schemas and contracts define behavior.**
 
-But to understand why contracts matter, it helps to understand what goes wrong
+But to understand why they matter, it helps to understand what goes wrong
 without them.
 
 The Problem with Assertions
@@ -58,35 +58,39 @@ The real goal is simple:
 Green means the system is healthy. Red means a real problem. No dashboards, no
 flakiness charts, no coverage percentages — just a clear signal.
 
-Contracts Over Assertions
---------------------------
+Schemas and Contracts Over Assertions
+--------------------------------------
 
-This is where contracts change the game.
+This is where schemas and contracts change the game.
 
 Instead of scattering assertions across tests, you **declare** what valid data
-looks like — once:
+looks like — once — in a **schema**:
 
 .. code-block:: python
 
-   class OrderContract(Dictionary):
+   class Order(Dictionary):
        OrderId = Int(name='order_id')
        Status = String(name='status')
        Total = Decimal(name='total', f_len=2, positive=True)
 
-A contract defines:
+A schema defines:
 
 - Expected structure
 - Allowed types and ranges
 - Optional vs required fields
 - Comparison rules for dynamic values
 
+A **contract** then binds a schema to communication semantics — an API
+endpoint, a database table, or an event name — turning a data definition into
+a verifiable interaction specification (see :doc:`contracts`).
+
 Validation becomes **structural and deterministic** — not a sequence of
-scattered assertions. When something changes, the contract changes in one
+scattered assertions. When something changes, the schema changes in one
 place, and every test that uses it adapts automatically.
 
-Contracts also **generate test data**. Instead of maintaining fixtures or
+Schemas also **generate test data**. Instead of maintaining fixtures or
 copying production data (with all its security, anonymization, and maintenance
-overhead), contracts produce controlled, purpose-built data per test. The data
+overhead), schemas produce controlled, purpose-built data per test. The data
 is diverse, maintainable, and risk-free.
 
 Deterministic Validation
@@ -111,53 +115,55 @@ Separation of Concerns
 
 Surety separates three responsibilities:
 
-1. **Contracts** — define expectations
-2. **Execution layers** — perform interactions (API, DB, UI)
+1. **Schemas** — define data structures and generate test data
+2. **Contracts & execution layers** — bind schemas to endpoints, tables, and
+   pages; perform interactions (API, DB, UI)
 3. **Diff engine** — verify interactions
 
-This separation makes contracts **transport-agnostic**. The same contract
+This separation makes schemas **transport-agnostic**. The same schema
 validates:
 
 - An HTTP API response
 - A database record
 - A UI state representation
 
-The contract describes *what correct data looks like*, not *how it was
-produced*. This means contracts survive infrastructure changes — switching from
+The schema describes *what correct data looks like*, not *how it was
+produced*. This means schemas survive infrastructure changes — switching from
 REST to GraphQL, from PostgreSQL to DynamoDB, or from server-rendered UI to a
-SPA does not invalidate your contracts.
+SPA does not invalidate your schemas.
 
 Stable Pipelines by Design
 ----------------------------
 
-Contracts directly address the root causes of pipeline instability:
+Schemas and contracts directly address the root causes of pipeline instability:
 
-**Code changes breaking tests?** Contracts are the single source of truth for
-expected behavior. When a field is added, removed, or renamed, the contract
-update propagates to all tests automatically. No scattered assertions to hunt
-down.
+**Code changes breaking tests?** Schemas are the single source of truth for
+expected data structures. When a field is added, removed, or renamed, the
+schema update propagates to all tests automatically. No scattered assertions
+to hunt down.
 
-**Flaky data?** Contracts generate isolated test data. No shared staging
+**Flaky data?** Schemas generate isolated test data. No shared staging
 environments, no production copies, no data interference between test runs.
 
-**Slow feedback?** Contracts validate structure in milliseconds. Combined with
+**Slow feedback?** Schemas validate structure in milliseconds. Combined with
 mocking (``surety-api``) and isolated environments, test suites stay fast
 enough that developers remain in context while waiting.
 
 The pipeline stays green — not because problems are hidden, but because
-contracts prevent the class of issues that make tests unreliable.
+schemas and contracts prevent the class of issues that make tests unreliable.
 
 Extensibility
 --------------
 
 Surety is designed as a pluggable ecosystem.
 
-The core defines contracts, field types, and data generation. Extensions provide
-execution layers and comparison engines:
+The core defines schemas, field types, and data generation. Extensions provide
+contracts, execution layers, and comparison engines:
 
 - **surety-diff** — structured comparison with custom rules
-- **surety-api** — HTTP interaction, mocking, and request verification
-- **surety-db** — database operations and record validation
+- **surety-api** — API contracts, HTTP interaction, mocking, and request verification
+- **surety-ui** — browser-based UI testing with Selenium page objects
+- **surety-db** — database contracts, operations, and record validation
 - **surety-config** — YAML-based configuration management
 
 Plugins can extend comparison rules, add new field types, and provide new
@@ -187,9 +193,9 @@ Framework, Not Utility
 
 Surety is not a schema validator, a mock framework, an ORM, or a test runner.
 
-It is a **contract-first verification framework**.
+It is a **schema- and contract-first verification framework**.
 
 It integrates with test runners (pytest). It integrates with CI pipelines. But
 it remains focused on one responsibility:
 
-**Verifying interactions against explicit contracts.**
+**Verifying interactions against explicit schemas and contracts.**
