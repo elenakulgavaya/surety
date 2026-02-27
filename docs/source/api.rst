@@ -77,7 +77,7 @@ ApiCaller
    from surety.api import ApiCaller
 
    class CreateOrderCaller(ApiCaller):
-       schema = CreateOrder
+       contract = CreateOrder
 
    CreateOrderCaller(
        req_body={'product_id': 501, 'quantity': 3},
