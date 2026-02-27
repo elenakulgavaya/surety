@@ -9,6 +9,52 @@ element abstractions, client-side storage access, and screenshot comparison.
 
    pip install surety-ui
 
+Why Use Surety for Frontend Tests
+---------------------------------
+
+Frontend tests are tightly coupled to backend APIs — every page displays data
+that originates from an API response. Traditional UI test setups duplicate
+this knowledge: backend tests define expected responses in one place, and
+frontend tests hardcode mock data in another. When the API changes, backend
+tests catch it immediately, but frontend mocks silently become outdated. The
+UI tests keep passing against stale data, giving false confidence.
+
+Surety eliminates this drift. Because ``surety-ui`` is part of the same
+ecosystem as ``surety-api``, frontend tests **reuse the exact same schemas**
+that define the backend API contracts. When a schema field is added, renamed,
+or removed, both backend and frontend tests reflect the change automatically.
+
+.. code-block:: python
+
+   from surety.api import ApiContract, HttpMethod
+   from surety import Dictionary, String, Int
+
+   # Shared schema — single source of truth for both backend and frontend tests
+   class OrderResponse(Dictionary):
+       OrderId = Int(name='order_id')
+       Status = String(name='status', default='pending')
+       Total = String(name='total')
+
+   # Backend: API contract verifies the real endpoint
+   class GetOrder(ApiContract):
+       method = HttpMethod.GET
+       url = '/api/v2/orders/{order_id}'
+       resp_body = OrderResponse
+
+   # Frontend: mock the same contract with the same schema
+   def test_order_page_displays_status():
+       contract = GetOrder()
+       order = OrderResponse()
+       contract.reply(body=order, status=200)
+
+       OrderPage.open(order.OrderId.value)
+       OrderPage.StatusLabel.verify_text(order.Status.value)
+
+In this example, ``OrderResponse`` is defined once and used everywhere — in
+the API contract that validates the real backend and in the UI test that mocks
+it. If the backend adds a new field or renames ``status`` to ``order_status``,
+the schema change propagates to all tests. Frontend mocks never go stale.
+
 Browser
 -------
 

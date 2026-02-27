@@ -132,6 +132,13 @@ produced*. This means schemas survive infrastructure changes — switching from
 REST to GraphQL, from PostgreSQL to DynamoDB, or from server-rendered UI to a
 SPA does not invalidate your schemas.
 
+This is especially powerful for frontend testing. UI tests are tightly coupled
+to backend APIs — every page renders data from API responses. With surety,
+frontend tests reuse the same schemas that define backend API contracts. When
+the API changes, both backend and frontend tests reflect it automatically.
+Mocked API responses in UI tests never drift from reality because they are
+generated from the same schema the backend validates against (see :doc:`ui`).
+
 Stable Pipelines by Design
 ----------------------------
 
