@@ -33,6 +33,9 @@ html_sidebars = {
         "sidebar-links.html",   # <-- our custom block
     ]
 }
+html_meta = {
+    "google-site-verification": "kkzPK605few1TEm02D81pw_QzbuKvXapr7pXLks8r7k"
+}
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
@@ -52,3 +55,4 @@ html_theme_options = {
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
 }
+
