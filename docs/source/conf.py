@@ -9,6 +9,8 @@
 project = 'Surety'
 copyright = '2026, Elena Kulgavaya'
 author = 'Elena Kulgavaya'
+html_title = 'Surety — Contract-Driven Testing Framework for Python'
+html_baseurl = 'https://surety.readthedocs.io/en/latest/'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -34,7 +36,16 @@ html_sidebars = {
     ]
 }
 html_meta = {
-    "google-site-verification": "kkzPK605few1TEm02D81pw_QzbuKvXapr7pXLks8r7k"
+    "google-site-verification": "kkzPK605few1TEm02D81pw_QzbuKvXapr7pXLks8r7k",
+    "description": (
+        "Surety is a Python contract-driven testing framework. "
+        "Define schemas as Python classes, generate realistic test data, "
+        "and validate API, database, and UI interactions deterministically."
+    ),
+    "keywords": (
+        "python testing, contract testing, contract-driven testing, "
+        "test automation, schema validation, api testing, test data generation, surety"
+    ),
 }
 extensions = [
     "sphinx.ext.autodoc",

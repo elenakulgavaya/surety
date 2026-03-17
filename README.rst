@@ -28,7 +28,8 @@
 
 ------
 
-Contract-driven testing for Python.
+Surety — Contract-Driven Testing Framework for Python
+======================================================
 
 Surety makes contract-based testing simple and readable.
 

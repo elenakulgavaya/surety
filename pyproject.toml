@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "surety"
-description = "Contract-driven service interaction modeling and test generation."
+description = "Surety — contract-driven testing framework for Python. Define schemas, generate realistic test data, and validate API, database, and UI interactions with reusable Python classes."
 requires-python = ">=3.7"
 readme = "README.rst"
 license = "MIT"
@@ -17,7 +17,19 @@ authors = [
     {name="Elena Kulgavaya", email="elena.kulgavaya@gmail.com"}
 ]
 dynamic = ["version"]
-keywords = ["testing", "automation", "python"]
+keywords = [
+    "surety",
+    "testing",
+    "contract testing",
+    "contract-driven testing",
+    "test automation",
+    "python testing",
+    "api testing",
+    "schema validation",
+    "test data generation",
+    "automation",
+    "python",
+]
 dependencies = [
     "Faker==11.3.0",
     "pytz==2021.3",
@@ -43,4 +55,7 @@ version_scheme = "guess-next-dev"
 local_scheme = "no-local-version"
 
 [project.urls]
+"Homepage" = "https://github.com/elenakulgavaya/surety"
+"Documentation" = "https://surety.readthedocs.io/"
+"Source" = "https://github.com/elenakulgavaya/surety"
 "Bug Tracker" = "https://github.com/elenakulgavaya/surety/issues"
