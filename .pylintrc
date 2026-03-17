@@ -8,7 +8,8 @@ ignore=LICENSE,
     pytest.ini,
     setup.cfg,
     pytest-coverage.txt,
-    test-report.xml
+    test-report.xml,
+    googled2514276308c46b9.html
 ignore-paths=dist,
     fild.egg-info,
     docs
