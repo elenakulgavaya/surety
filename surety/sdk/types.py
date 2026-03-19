@@ -20,7 +20,11 @@ class Int(Field):
                  min_val=None, max_val=None, default=None):
         self.save_kwargs(locals())
         self.min_val = min_val or 0
-        self.max_val = max_val or 9999
+
+        if max_val is None:
+            max_val = 9999
+
+        self.max_val = max_val
         super().__init__(
             name=name, required=required, allow_none=allow_none,
             default=default

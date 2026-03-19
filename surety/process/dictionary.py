@@ -63,6 +63,10 @@ def merge_with_updates(initial_dict, updates, extend_only=False,
       >>> merge_with_updates({1: [2]}, {1: [2, 3]}, merge_lists=True)
       {1: [2, 2, 3]}
 
+    Empty list:
+      >>> merge_with_updates({1: [2]}, {1: []}, merge_lists=True)
+      {1: [2]}
+
     Extend list of dicts:
       >>> merge_with_updates({1: [{2: 2}]}, {1: [{3: 3}]}, merge_lists=True)
       {1: [{2: 2, 3: 3}]}
@@ -123,6 +127,8 @@ def merge_with_updates(initial_dict, updates, extend_only=False,
             )
         elif merge_lists and isinstance(value, list) and isinstance(
                 initial_copy.get(key), list):
+            if not value:
+                continue
             if len(initial_copy[key]) == 0 or not isinstance(
                     value[0], Mapping) or value[0] == {}:
                 initial_copy[key].extend(value)

@@ -13,6 +13,9 @@
     :target: https://pypi.org/project/surety/
     :alt: Python versions
 
+.. image:: https://img.shields.io/pypi/dm/surety.svg
+    :target: https://pypi.org/project/surety/
+    :alt: Downloads
 
 .. image:: https://github.com/elenakulgavaya/surety/actions/workflows/test.yml/badge.svg
     :target: https://github.com/elenakulgavaya/surety/actions?query=workflow%3ATests+branch%3Amain++
