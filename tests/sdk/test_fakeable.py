@@ -1,6 +1,7 @@
 from surety.sdk import fakeable
 from surety.sdk.fakeable import (
     Fakeable, fake_string_attr, generate_float, generate_string,
+    _to_snake_case, _resolve_faker_provider,
 )
 
 
@@ -12,6 +13,11 @@ def test_generate_string_fixed_size():
 def test_fake_attribute():
     value = fake_string_attr(Fakeable.CompanyEmail)
     assert '@' in value
+
+
+def test_fake_attribute_sentences():
+    value = fake_string_attr(Fakeable.Sentences)
+    assert '\n' in value
 
 
 def test_max_len_in_fake_attrs():
@@ -56,3 +62,55 @@ def test_fakeable_exclude():
 
 def test_fakeable_exclude_value():
     assert Fakeable.DateTime not in Fakeable.to_list(exclude=Fakeable.DateTime)
+
+
+def test_snake_case_camel():
+    assert _to_snake_case('phoneNumber') == 'phone_number'
+
+
+def test_snake_case_title():
+    assert _to_snake_case('CurrencyCode') == 'currency_code'
+
+
+def test_snake_case_already_snake():
+    assert _to_snake_case('phone_number') == 'phone_number'
+
+
+def test_snake_case_single_word():
+    assert _to_snake_case('email') == 'email'
+
+
+def test_resolve_layer1_direct_match():
+    assert _resolve_faker_provider('email') == Fakeable.Email
+
+
+def test_resolve_camel_case():
+    assert _resolve_faker_provider('phoneNumber') == Fakeable.PhoneNumber
+
+
+def test_resolve_title():
+    assert _resolve_faker_provider('CurrencyCode') == Fakeable.CurrencyCode
+
+
+def test_resolve_semantic_alias():
+    assert _resolve_faker_provider('description') == Fakeable.Sentences
+
+
+def test_resolve_suffix_id():
+    assert _resolve_faker_provider('providerId') == Fakeable.Uuid
+
+
+def test_resolve_suffix_url():
+    assert _resolve_faker_provider('attachment_url') == Fakeable.Url
+
+
+def test_resolve_email():
+    assert _resolve_faker_provider('contactEmail') == Fakeable.Email
+
+
+def test_resolve_none_for_unknown():
+    assert _resolve_faker_provider('abc') is None
+
+
+def test_resolve_none_for_empty():
+    assert _resolve_faker_provider(None) is None

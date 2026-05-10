@@ -1,5 +1,6 @@
 import decimal
 import random
+import re
 
 from faker import Faker
 
@@ -92,9 +93,63 @@ class Fakeable(BaseEnum):
 
 FAKER = Faker()
 
+_SEMANTIC_ALIASES = {
+    'description': Fakeable.Sentences,
+    'subject': Fakeable.Sentence,
+    'note': Fakeable.Sentence,
+    'notes': Fakeable.Sentences,
+    'comment': Fakeable.Sentence,
+    'comments': Fakeable.Sentences,
+    'information': Fakeable.Sentence,
+    'details': Fakeable.Sentence,
+    'title': Fakeable.Sentence,
+    'text': Fakeable.Text,
+    'content': Fakeable.Text,
+    'body': Fakeable.Text,
+    'filename': Fakeable.FileName,
+    'brand': Fakeable.Company,
+    'manufacturer': Fakeable.Company,
+}
+_SUFFIX_PATTERNS = [
+    ('_url', 'url'),
+    ('_email', 'email'),
+    ('_phone', 'phone_number'),
+    ('_address', 'street_address'),
+    ('_city', 'city'),
+    ('_country', 'country'),
+    ('_name', 'name'),
+    ('_id', 'uuid4'),
+]
+
+
+def _to_snake_case(name):
+    s1 = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1_\2', name)
+    return re.sub(r'([a-z\d])([A-Z])', r'\1_\2', s1).lower()
+
+
+def _resolve_faker_provider(name):
+    if not name:
+        return None
+
+    if hasattr(FAKER, name):
+        return name
+
+    snake = _to_snake_case(name)
+    if hasattr(FAKER, snake):
+        return snake
+
+    if snake in _SEMANTIC_ALIASES:
+        return _SEMANTIC_ALIASES[snake]
+
+    for suffix, provider in _SUFFIX_PATTERNS:
+        if snake.endswith(suffix):
+            return provider
+
+    return None
+
 
 def generate_string(size=None, min_len=None, max_len=None):
-    if size:
+    if size is not None:
         min_len = size
         max_len = size
 
@@ -102,13 +157,20 @@ def generate_string(size=None, min_len=None, max_len=None):
 
 
 def fake_string_attr(attr_name, min_len=None, max_len=None):
-    if attr_name and hasattr(FAKER, attr_name):
-        result = getattr(FAKER, attr_name)()
+    provider = _resolve_faker_provider(attr_name)
+
+    if provider:
+        result = getattr(FAKER, provider)()
+
+        if isinstance(result, list):
+            result = '\n'.join(result)
+        else:
+            result = str(result)
 
         if max_len and len(result) > max_len:
             result = result[:max_len]
 
-        return str(result)
+        return result
 
     return generate_string(min_len=min_len, max_len=max_len)
 
@@ -116,7 +178,7 @@ def fake_string_attr(attr_name, min_len=None, max_len=None):
 def generate_float(i_len=None, f_len=None, integer_allowed=True, max_val=None,
                    fixed_f_len=False, i_min=None):
     """
-      Generates random float with floating number of digits in integer and
+      Generates a random float with a floating number of digits in integer and
     fractional part. Fractional part length can be fixed for e.g. money types.
       Cannot be used with f_len=1 & fixed_f_len=True - fraction part will be 0
     :param i_len: max length of integer part
