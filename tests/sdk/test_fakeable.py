@@ -15,6 +15,11 @@ def test_fake_attribute():
     assert '@' in value
 
 
+def test_fake_attribute_sentences():
+    value = fake_string_attr(Fakeable.Sentences)
+    assert '\n' in value
+
+
 def test_max_len_in_fake_attrs():
     value = fake_string_attr(Fakeable.Uuid, max_len=10)
     assert len(value) == 10
