@@ -187,7 +187,7 @@ class DateTime(String):
             return None
 
         from_zone = timezone.utc
-        to_zone = ZoneInfo(new_tz) if new_tz else timezone.utc
+        to_zone = ZoneInfo(new_tz.upper()) if new_tz else timezone.utc
         value = self._value
 
         if isinstance(value, str):
