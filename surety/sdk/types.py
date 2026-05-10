@@ -1,8 +1,8 @@
 import decimal
 import random
 
-from datetime import datetime
-from dateutil import tz
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 from surety.sdk import fakeable, dates
 from surety.sdk.base_enum import BaseEnum
@@ -186,8 +186,8 @@ class DateTime(String):
         if self._value is None:
             return None
 
-        from_zone = tz.tzutc()
-        to_zone = tz.gettz(new_tz)
+        from_zone = timezone.utc
+        to_zone = ZoneInfo(new_tz) if new_tz else timezone.utc
         value = self._value
 
         if isinstance(value, str):
