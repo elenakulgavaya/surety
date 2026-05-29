@@ -1,6 +1,7 @@
 import decimal
 import random
 import re
+from typing import TYPE_CHECKING
 
 from faker import Faker
 
@@ -34,7 +35,10 @@ class _StrFaker:
         return attr
 
 
-fake = _StrFaker()
+if TYPE_CHECKING:
+    fake: Faker = _faker  # type: ignore[assignment]
+else:
+    fake = _StrFaker()
 
 
 class Fakeable(BaseEnum):  # backward compatibility
