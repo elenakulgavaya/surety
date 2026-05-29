@@ -98,9 +98,11 @@ def test_resolve_none_for_empty():
     assert _resolve_faker_provider(None) is None
 
 
-def test_fake_direct_call():
+def test_fake_direct_call_word():
     assert isinstance(fake.word(), str)
-    assert isinstance(fake.email(), str)
+
+
+def test_fake_direct_call_email():
     assert '@' in fake.email()
 
 
