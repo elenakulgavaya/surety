@@ -98,6 +98,10 @@ def test_resolve_none_for_empty():
     assert _resolve_faker_provider(None) is None
 
 
+def test_fake_non_callable_attr():
+    assert isinstance(fake.locales, list)
+
+
 def test_fake_direct_call_word():
     assert isinstance(fake.word(), str)
 

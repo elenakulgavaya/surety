@@ -257,8 +257,9 @@ Faker Providers
 ---------------
 
 The ``String`` field auto-detects Faker providers by ``name`` or ``fake_as``.
-The ``fake`` object from ``surety.sdk.fakeable`` is a pre-configured ``Faker``
-instance — use its methods directly as ``fake_as`` values or call them
+The ``fake`` object from ``surety.sdk.fakeable`` is a string-only Faker wrapper
+— every method call returns a ``str``, regardless of what the underlying Faker
+provider returns. Use its methods directly as ``fake_as`` values or call them
 standalone.
 
 .. code-block:: python

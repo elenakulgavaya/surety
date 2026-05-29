@@ -14,11 +14,28 @@ def _to_snake_case(name):
     return re.sub(r'([a-z\d])([A-Z])', r'\1_\2', s1).lower()
 
 
-fake = Faker()
-fake.add_provider(UnitsProvider)
-fake.add_provider(NutritionProvider)
+_faker = Faker()
+_faker.add_provider(UnitsProvider)
+_faker.add_provider(NutritionProvider)
 
-FAKER = fake  # backward compatibility
+FAKER = _faker  # backward compat for typed fields (Bool, Int, Float, etc.)
+
+
+class _StrFaker:
+    def __getattr__(self, name):
+        attr = getattr(_faker, name)
+        if callable(attr):
+            def wrapper(*args, **kwargs):
+                result = attr(*args, **kwargs)
+                if isinstance(result, list):
+                    return '\n'.join(str(r) for r in result)
+                return str(result)
+            return wrapper
+        return attr
+
+
+fake = _StrFaker()
+
 
 class Fakeable(BaseEnum):  # backward compatibility
     Address = 'address'
@@ -180,11 +197,6 @@ def fake_string_attr(attr_name, min_len=None, max_len=None):
 
     if provider:
         result = getattr(fake, provider)()
-
-        if isinstance(result, list):
-            result = '\n'.join(result)
-        else:
-            result = str(result)
 
         if max_len and len(result) > max_len:
             result = result[:max_len]
