@@ -1,3 +1,5 @@
+import inspect
+
 
 class BaseEnum:
     @classmethod
@@ -8,7 +10,8 @@ class BaseEnum:
             if not attr_name.startswith('_'):
                 attr_value = getattr(cls, attr_name)
 
-                if (not callable(attr_value) and
+                if (not inspect.isfunction(attr_value) and
+                        not inspect.ismethod(attr_value) and
                         not isinstance(attr_value, property)):
                     result.append(attr_value)
 

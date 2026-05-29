@@ -102,6 +102,9 @@ class String(Field):
         )
 
     def generate_value(self):
+        if callable(self.fake_as):
+            result = str(self.fake_as())
+            return result[:self.max_len] if self.max_len else result
         return fakeable.fake_string_attr(
             self.fake_as or self.name,
             min_len=self.min_len,

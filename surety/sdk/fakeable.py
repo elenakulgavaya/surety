@@ -5,9 +5,22 @@ import re
 from faker import Faker
 
 from surety.sdk.base_enum import BaseEnum
+from surety.sdk.providers.nutrition import NutritionProvider
+from surety.sdk.providers.units import UnitsProvider
 
 
-class Fakeable(BaseEnum):
+def _to_snake_case(name):
+    s1 = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1_\2', name)
+    return re.sub(r'([a-z\d])([A-Z])', r'\1_\2', s1).lower()
+
+
+fake = Faker()
+fake.add_provider(UnitsProvider)
+fake.add_provider(NutritionProvider)
+
+FAKER = fake  # backward compatibility
+
+class Fakeable(BaseEnum):  # backward compatibility
     Address = 'address'
     AmPm = 'am_pm'
     AndroidToken = 'android_platform_token'
@@ -90,52 +103,58 @@ class Fakeable(BaseEnum):
     RgbColor = 'rgb_color'
     RgbCssColor = 'rgb_css_color'
 
-
-FAKER = Faker()
-
 _SEMANTIC_ALIASES = {
-    'description': Fakeable.Sentences,
-    'subject': Fakeable.Sentence,
-    'note': Fakeable.Sentence,
-    'notes': Fakeable.Sentences,
-    'comment': Fakeable.Sentence,
-    'comments': Fakeable.Sentences,
-    'information': Fakeable.Sentence,
-    'details': Fakeable.Sentence,
-    'title': Fakeable.Sentence,
-    'text': Fakeable.Text,
-    'content': Fakeable.Text,
-    'body': Fakeable.Text,
-    'filename': Fakeable.FileName,
-    'brand': Fakeable.Company,
-    'manufacturer': Fakeable.Company,
+    'currency': 'currency_code',
+    'description': 'sentences',
+    'subject': 'sentence',
+    'note': 'sentence',
+    'notes': 'sentences',
+    'comment': 'sentence',
+    'comments': 'sentences',
+    'information': 'sentence',
+    'details': 'sentence',
+    'title': 'sentence',
+    'text': 'text',
+    'content': 'text',
+    'body': 'text',
+    'filename': 'file_name',
+    'brand': 'company',
+    'manufacturer': 'company',
+    'carbohydrates': 'carbohydrates',
+    'line1': 'name',
+    'line2': 'street_address',
+    'line3': 'secondary_address',
+    'line4': 'postalcode',
 }
 _SUFFIX_PATTERNS = [
     ('_url', 'url'),
     ('_email', 'email'),
     ('_phone', 'phone_number'),
+    ('_line1', 'street_address'),
+    ('_line2', 'secondary_address'),
+    ('_line3', 'postal_code'),
     ('_address', 'street_address'),
     ('_city', 'city'),
     ('_country', 'country'),
     ('_name', 'name'),
     ('_id', 'uuid4'),
+    ('_number', 'number'),
+    ('_owner', 'name'),
+    ('_currency', 'currency_code'),
+    ('_unit_code', 'unit_code'),
+    ('_unit', 'unit'),
 ]
-
-
-def _to_snake_case(name):
-    s1 = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1_\2', name)
-    return re.sub(r'([a-z\d])([A-Z])', r'\1_\2', s1).lower()
 
 
 def _resolve_faker_provider(name):
     if not name:
         return None
 
-    if hasattr(FAKER, name):
+    if hasattr(fake, name):
         return name
 
     snake = _to_snake_case(name)
-    if hasattr(FAKER, snake):
+    if hasattr(fake, snake):
         return snake
 
     if snake in _SEMANTIC_ALIASES:
@@ -153,14 +172,14 @@ def generate_string(size=None, min_len=None, max_len=None):
         min_len = size
         max_len = size
 
-    return FAKER.pystr(min_chars=min_len, max_chars=max_len or 20)
+    return fake.pystr(min_chars=min_len, max_chars=max_len or 20)
 
 
 def fake_string_attr(attr_name, min_len=None, max_len=None):
     provider = _resolve_faker_provider(attr_name)
 
     if provider:
-        result = getattr(FAKER, provider)()
+        result = getattr(fake, provider)()
 
         if isinstance(result, list):
             result = '\n'.join(result)
