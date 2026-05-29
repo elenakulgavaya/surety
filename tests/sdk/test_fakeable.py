@@ -102,3 +102,58 @@ def test_fake_direct_call():
     assert isinstance(fake.word(), str)
     assert isinstance(fake.email(), str)
     assert '@' in fake.email()
+
+
+def test_unit_returns_full_name():
+    assert fake.unit() in [
+        'Bottle', 'Box', 'Can', 'Case', 'Feet', 'Gallon', 'Gram',
+        'Inches', 'Kilogram', 'Pounds', 'Liter', 'Milliliter',
+        'Millimeter', 'Meter', 'Ounces', 'Pieces',
+    ]
+
+
+def test_unit_code_returns_code():
+    assert fake.unit_code() in [
+        'BOT', 'BOX', 'CAN', 'CS', 'FT', 'GA', 'GR',
+        'IN', 'KG', 'LB', 'LTR', 'ML', 'MM', 'MTR', 'OZ', 'PCS',
+    ]
+
+
+def test_calories_format():
+    assert fake.calories().endswith('kcal')
+
+
+def test_fat_format():
+    assert fake.fat().endswith('g')
+
+
+def test_saturated_fat_format():
+    assert fake.saturated_fat().endswith('g')
+
+
+def test_protein_format():
+    assert fake.protein().endswith('g')
+
+
+def test_sodium_format():
+    assert fake.sodium().endswith('mg')
+
+
+def test_carbohydrates_format():
+    assert fake.carbohydrates().endswith('g')
+
+
+def test_sugar_format():
+    assert fake.sugar().endswith('g')
+
+
+def test_salt_format():
+    assert fake.salt().endswith('g')
+
+
+def test_cholesterol_format():
+    assert fake.cholesterol().endswith('mg')
+
+
+def test_fiber_format():
+    assert fake.fiber().endswith('g')

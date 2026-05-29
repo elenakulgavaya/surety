@@ -7,6 +7,7 @@ from surety import (
     Bool, DateTime, Decimal, Enum, Float, Int, Raw, String, StringDecimal,
     Uuid, Dictionary
 )
+from surety.sdk.fakeable import fake
 
 
 def test_generate_bool():
@@ -167,3 +168,14 @@ def test_generate_uuid_type():
 def test_generate_uuid_value():
     value = Uuid().value
     assert isinstance(uuid.UUID(value, version=4), uuid.UUID)
+
+
+def test_string_fake_as_callable():
+    value = String(fake_as=fake.company).value
+    assert isinstance(value, str)
+    assert len(value) > 0
+
+
+def test_string_fake_as_callable_max_len():
+    value = String(fake_as=fake.company, max_len=5).value
+    assert len(value) == 5
