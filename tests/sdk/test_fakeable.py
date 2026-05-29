@@ -1,6 +1,6 @@
 from surety.sdk import fakeable
 from surety.sdk.fakeable import (
-    Fakeable, fake_string_attr, generate_float, generate_string,
+    fake, fake_string_attr, generate_float, generate_string,
     _to_snake_case, _resolve_faker_provider,
 )
 
@@ -11,17 +11,17 @@ def test_generate_string_fixed_size():
 
 
 def test_fake_attribute():
-    value = fake_string_attr(Fakeable.CompanyEmail)
+    value = fake_string_attr('company_email')
     assert '@' in value
 
 
 def test_fake_attribute_sentences():
-    value = fake_string_attr(Fakeable.Sentences)
+    value = fake_string_attr('sentences')
     assert '\n' in value
 
 
 def test_max_len_in_fake_attrs():
-    value = fake_string_attr(Fakeable.Uuid, max_len=10)
+    value = fake_string_attr('uuid4', max_len=10)
     assert len(value) == 10
 
 
@@ -46,24 +46,6 @@ def test_generate_float_fixed_f_len(monkeypatch):
     assert len(str(value).split('.')[1]) == 2
 
 
-def test_fakeable_to_list():
-    assert len(Fakeable.to_list()) == 81
-
-
-def test_fakeable_include():
-    assert Fakeable.AmPm in Fakeable.to_list()
-
-
-def test_fakeable_exclude():
-    assert len(Fakeable.to_list(exclude=[
-        Fakeable.AmPm, Fakeable.Address, Fakeable.CompanyEmail
-    ])) == 78
-
-
-def test_fakeable_exclude_value():
-    assert Fakeable.DateTime not in Fakeable.to_list(exclude=Fakeable.DateTime)
-
-
 def test_snake_case_camel():
     assert _to_snake_case('phoneNumber') == 'phone_number'
 
@@ -81,31 +63,31 @@ def test_snake_case_single_word():
 
 
 def test_resolve_layer1_direct_match():
-    assert _resolve_faker_provider('email') == Fakeable.Email
+    assert _resolve_faker_provider('email') == 'email'
 
 
 def test_resolve_camel_case():
-    assert _resolve_faker_provider('phoneNumber') == Fakeable.PhoneNumber
+    assert _resolve_faker_provider('phoneNumber') == 'phone_number'
 
 
 def test_resolve_title():
-    assert _resolve_faker_provider('CurrencyCode') == Fakeable.CurrencyCode
+    assert _resolve_faker_provider('CurrencyCode') == 'currency_code'
 
 
 def test_resolve_semantic_alias():
-    assert _resolve_faker_provider('description') == Fakeable.Sentences
+    assert _resolve_faker_provider('description') == 'sentences'
 
 
 def test_resolve_suffix_id():
-    assert _resolve_faker_provider('providerId') == Fakeable.Uuid
+    assert _resolve_faker_provider('providerId') == 'uuid4'
 
 
 def test_resolve_suffix_url():
-    assert _resolve_faker_provider('attachment_url') == Fakeable.Url
+    assert _resolve_faker_provider('attachment_url') == 'url'
 
 
 def test_resolve_email():
-    assert _resolve_faker_provider('contactEmail') == Fakeable.Email
+    assert _resolve_faker_provider('contactEmail') == 'email'
 
 
 def test_resolve_none_for_unknown():
@@ -114,3 +96,66 @@ def test_resolve_none_for_unknown():
 
 def test_resolve_none_for_empty():
     assert _resolve_faker_provider(None) is None
+
+
+def test_fake_direct_call_word():
+    assert isinstance(fake.word(), str)
+
+
+def test_fake_direct_call_email():
+    assert '@' in fake.email()
+
+
+def test_unit_returns_full_name():
+    assert fake.unit() in [
+        'Bottle', 'Box', 'Can', 'Case', 'Feet', 'Gallon', 'Gram',
+        'Inches', 'Kilogram', 'Pounds', 'Liter', 'Milliliter',
+        'Millimeter', 'Meter', 'Ounces', 'Pieces',
+    ]
+
+
+def test_unit_code_returns_code():
+    assert fake.unit_code() in [
+        'BOT', 'BOX', 'CAN', 'CS', 'FT', 'GA', 'GR',
+        'IN', 'KG', 'LB', 'LTR', 'ML', 'MM', 'MTR', 'OZ', 'PCS',
+    ]
+
+
+def test_calories_format():
+    assert fake.calories().endswith('kcal')
+
+
+def test_fat_format():
+    assert fake.fat().endswith('g')
+
+
+def test_saturated_fat_format():
+    assert fake.saturated_fat().endswith('g')
+
+
+def test_protein_format():
+    assert fake.protein().endswith('g')
+
+
+def test_sodium_format():
+    assert fake.sodium().endswith('mg')
+
+
+def test_carbohydrates_format():
+    assert fake.carbohydrates().endswith('g')
+
+
+def test_sugar_format():
+    assert fake.sugar().endswith('g')
+
+
+def test_salt_format():
+    assert fake.salt().endswith('g')
+
+
+def test_cholesterol_format():
+    assert fake.cholesterol().endswith('mg')
+
+
+def test_fiber_format():
+    assert fake.fiber().endswith('g')

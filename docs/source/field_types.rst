@@ -123,13 +123,21 @@ automatically.
        Nickname = String(name='nickname', min_len=3, max_len=20)
 
 Use ``fake_as`` to explicitly select a Faker provider regardless of the field
-name:
+name. Pass a method from the ``fake`` instance (recommended) or a provider
+name string:
 
 .. code-block:: python
 
+   from surety.sdk.fakeable import fake
+
+   class Profile(Dictionary):
+       Handle = String(name='handle', fake_as=fake.user_name)
+       Bio = String(name='bio', fake_as=fake.sentence, max_len=200)
+       Brand = String(name='brand', fake_as=fake.company)
+
+   # String provider names also work
    class Profile(Dictionary):
        Handle = String(name='handle', fake_as='user_name')
-       Bio = String(name='bio', fake_as='sentence', max_len=200)
 
 .. list-table::
    :header-rows: 1
@@ -146,7 +154,8 @@ name:
      - Maximum string length (truncated if exceeded).
    * - ``fake_as``
      - ``None``
-     - Faker provider method name. Falls back to ``name`` if not set.
+     - Faker provider — a callable (e.g. ``fake.company``) or a provider name
+       string. Falls back to auto-detection from ``name`` if not set.
 
 Uuid
 ----
@@ -248,7 +257,19 @@ Faker Providers
 ---------------
 
 The ``String`` field auto-detects Faker providers by ``name`` or ``fake_as``.
-Common providers:
+The ``fake`` object from ``surety.sdk.fakeable`` is a pre-configured ``Faker``
+instance — use its methods directly as ``fake_as`` values or call them
+standalone.
+
+.. code-block:: python
+
+   from surety.sdk.fakeable import fake
+
+   fake.email()        # 'j.smith@example.com'
+   fake.calories()     # '312 kcal'
+   fake.unit_code()    # 'KG'
+
+**People & contact**
 
 .. list-table::
    :header-rows: 1
@@ -256,39 +277,139 @@ Common providers:
 
    * - Provider
      - Example Output
-   * - ``name``
+   * - ``fake.name``
      - ``'Margaret Johnson'``
-   * - ``first_name``
+   * - ``fake.first_name``
      - ``'Elena'``
-   * - ``last_name``
+   * - ``fake.last_name``
      - ``'Williams'``
-   * - ``email``
+   * - ``fake.email``
      - ``'j.smith@example.com'``
-   * - ``company_email``
+   * - ``fake.company_email``
      - ``'mwilson@acme.org'``
-   * - ``phone_number``
+   * - ``fake.phone_number``
      - ``'+1-555-0123'``
-   * - ``address``
-     - ``'456 Oak Avenue, Suite 7'``
-   * - ``city``
-     - ``'Portland'``
-   * - ``state``
-     - ``'Oregon'``
-   * - ``state_abbr``
-     - ``'OR'``
-   * - ``zipcode``
-     - ``'97201'``
-   * - ``country``
-     - ``'United States'``
-   * - ``url``
-     - ``'https://example.com'``
-   * - ``user_name``
+   * - ``fake.user_name``
      - ``'jsmith42'``
-   * - ``credit_card_number``
-     - ``'4111111111111111'``
-   * - ``sentence``
-     - ``'The quick brown fox jumps.'``
-   * - ``date``
-     - ``'2024-08-15'``
 
-See the full list of 80+ providers in ``surety.sdk.fakeable.Fakeable``.
+**Address**
+
+Fields whose names end in ``_line1``, ``_line2``, or ``_line3`` (e.g.
+``addressLine1``, ``billingAddressLine2``) are automatically mapped to address
+providers.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Provider
+     - Example Output
+   * - ``fake.street_address``
+     - ``'123 Main St'``
+   * - ``fake.secondary_address``
+     - ``'Apt 4B'``
+   * - ``fake.city``
+     - ``'Portland'``
+   * - ``fake.state``
+     - ``'Oregon'``
+   * - ``fake.state_abbr``
+     - ``'OR'``
+   * - ``fake.zipcode``
+     - ``'97201'``
+   * - ``fake.country``
+     - ``'United States'``
+
+**Units of measure**
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Provider
+     - Example Output
+   * - ``fake.unit``
+     - ``'Kilogram'``
+   * - ``fake.unit_code``
+     - ``'KG'``
+
+Available units: Bottle (BOT), Box (BOX), Can (CAN), Case (CS), Feet (FT),
+Gallon (GA), Gram (GR), Inches (IN), Kilogram (KG), Pounds (LB), Liter (LTR),
+Milliliter (ML), Millimeter (MM), Meter (MTR), Ounces (OZ), Pieces (PCS).
+
+**Nutrition**
+
+Each method returns a number with its unit as a string.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Provider
+     - Example Output
+   * - ``fake.calories``
+     - ``'312 kcal'``
+   * - ``fake.fat``
+     - ``'12.4 g'``
+   * - ``fake.saturated_fat``
+     - ``'3.1 g'``
+   * - ``fake.protein``
+     - ``'28.0 g'``
+   * - ``fake.carbohydrates``
+     - ``'54.2 g'``
+   * - ``fake.sugar``
+     - ``'8.7 g'``
+   * - ``fake.fiber``
+     - ``'4.3 g'``
+   * - ``fake.salt``
+     - ``'1.2 g'``
+   * - ``fake.sodium``
+     - ``'480 mg'``
+   * - ``fake.cholesterol``
+     - ``'95 mg'``
+
+**Other commonly used providers**
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Provider
+     - Example Output
+   * - ``fake.company``
+     - ``'Acme Corp'``
+   * - ``fake.url``
+     - ``'https://example.com'``
+   * - ``fake.credit_card_number``
+     - ``'4111111111111111'``
+   * - ``fake.sentence``
+     - ``'The quick brown fox jumps.'``
+   * - ``fake.date``
+     - ``'2024-08-15'``
+   * - ``fake.uuid4``
+     - ``'3d6f4890-...'``
+
+The full Faker library is available — any ``faker`` provider method works with
+``fake_as`` or can be called directly via ``fake.<provider>()``.
+
+**Semantic auto-detection**
+
+Fields with common semantic names resolve automatically without ``fake_as``:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Field name
+     - Resolved provider
+   * - ``description``, ``details``, ``information``
+     - ``sentences``
+   * - ``note``, ``comment``, ``subject``, ``title``
+     - ``sentence``
+   * - ``content``, ``body``, ``text``
+     - ``text``
+   * - ``brand``, ``manufacturer``
+     - ``company``
+   * - ``currency``
+     - ``currency_code``
+   * - ``filename``
+     - ``file_name``
