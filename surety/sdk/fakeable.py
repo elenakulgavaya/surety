@@ -1,6 +1,7 @@
 import decimal
 import random
 import re
+import warnings
 from typing import TYPE_CHECKING
 
 from faker import Faker
@@ -26,7 +27,20 @@ FAKER = _faker  # backward compat for typed fields (Bool, Int, Float, etc.)
 
 class _StrFaker:
     def __getattr__(self, name):
-        attr = getattr(_faker, name)
+        try:
+            attr = getattr(_faker, name)
+        except AttributeError:
+            if name.startswith('_'):
+                raise
+            warnings.warn(
+                f'fake.{name}() is not a valid Faker provider, falling back to random string',
+                stacklevel=2,
+            )
+            def fallback(*_, **kwargs):
+                max_len = kwargs.pop('max_len', None)
+                return generate_string(max_len=max_len)
+            return fallback
+
         if callable(attr):
             def wrapper(*args, **kwargs):
                 max_len = kwargs.pop('max_len', None)
@@ -161,7 +175,7 @@ _SUFFIX_PATTERNS = [
     ('_phone', 'phone_number'),
     ('_line1', 'street_address'),
     ('_line2', 'secondary_address'),
-    ('_line3', 'postal_code'),
+    ('_line3', 'postalcode'),
     ('_address', 'street_address'),
     ('_city', 'city'),
     ('_country', 'country'),
@@ -179,11 +193,11 @@ def _resolve_faker_provider(name):
     if not name:
         return None
 
-    if hasattr(fake, name):
+    if hasattr(_faker, name):
         return name
 
     snake = _to_snake_case(name)
-    if hasattr(fake, snake):
+    if hasattr(_faker, snake):
         return snake
 
     if snake in _SEMANTIC_ALIASES:
