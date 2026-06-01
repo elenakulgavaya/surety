@@ -36,7 +36,7 @@ class _StrFaker:
                 f'fake.{name}() is not a valid Faker provider, falling back to random string',
                 stacklevel=2,
             )
-            def fallback(*args, **kwargs):
+            def fallback(*_, **kwargs):
                 max_len = kwargs.pop('max_len', None)
                 return generate_string(max_len=max_len)
             return fallback

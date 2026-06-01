@@ -1,3 +1,5 @@
+import warnings
+
 from surety.sdk import fakeable
 from surety.sdk.fakeable import (
     fake, fake_string_attr, generate_float, generate_string,
@@ -203,7 +205,6 @@ def test_max_len_no_truncation_when_shorter():
 
 
 def test_invalid_provider_warns_and_returns_string():
-    import warnings
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter('always')
         value = fake.postal_code()
@@ -214,8 +215,7 @@ def test_invalid_provider_warns_and_returns_string():
 
 
 def test_invalid_provider_respects_max_len():
-    import warnings
-    with warnings.catch_warnings(record=True) as w:
+    with warnings.catch_warnings(record=True):
         warnings.simplefilter('always')
         value = fake.postal_code(max_len=5)
     assert len(value) <= 5
