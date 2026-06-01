@@ -7,6 +7,7 @@ from faker import Faker
 
 from surety.sdk.base_enum import BaseEnum
 from surety.sdk.providers.nutrition import NutritionProvider
+from surety.sdk.providers.primitives import PrimitivesProvider
 from surety.sdk.providers.units import UnitsProvider
 
 
@@ -18,6 +19,7 @@ def _to_snake_case(name):
 _faker = Faker()
 _faker.add_provider(UnitsProvider)
 _faker.add_provider(NutritionProvider)
+_faker.add_provider(PrimitivesProvider)
 
 FAKER = _faker  # backward compat for typed fields (Bool, Int, Float, etc.)
 
@@ -27,10 +29,15 @@ class _StrFaker:
         attr = getattr(_faker, name)
         if callable(attr):
             def wrapper(*args, **kwargs):
+                max_len = kwargs.pop('max_len', None)
                 result = attr(*args, **kwargs)
                 if isinstance(result, list):
-                    return '\n'.join(str(r) for r in result)
-                return str(result)
+                    result = '\n'.join(str(r) for r in result)
+                else:
+                    result = str(result)
+                if max_len is not None and len(result) > max_len:
+                    result = result[:max_len].rstrip()
+                return result
             return wrapper
         return attr
 
@@ -103,6 +110,7 @@ class Fakeable(BaseEnum):  # backward compatibility
     Digit = 'random_digit'
     Int = 'random_int'
     Number = 'random_number'
+    String = 'string'
     SecondaryAddress = 'secondary_address'
     Sentence = 'sentence'
     Sentences = 'sentences'
@@ -159,7 +167,7 @@ _SUFFIX_PATTERNS = [
     ('_country', 'country'),
     ('_name', 'name'),
     ('_id', 'uuid4'),
-    ('_number', 'number'),
+    ('_number', 'random_number'),
     ('_owner', 'name'),
     ('_currency', 'currency_code'),
     ('_unit_code', 'unit_code'),
