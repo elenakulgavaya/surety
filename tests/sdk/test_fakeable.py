@@ -163,3 +163,40 @@ def test_cholesterol_format():
 
 def test_fiber_format():
     assert fake.fiber().endswith('g')
+
+
+def test_fake_string_returns_alphanumeric():
+    value = fake.string()
+    assert isinstance(value, str)
+    assert 1 <= len(value) <= 20
+
+
+def test_fake_string_respects_bounds():
+    value = fake.string(min_chars=5, max_chars=10)
+    assert 5 <= len(value) <= 10
+
+
+def test_fake_number_returns_int_string():
+    value = fake.number()
+    assert isinstance(value, str)
+    assert 0 <= int(value) <= 9999
+
+
+def test_fake_number_respects_bounds():
+    value = fake.number(min_value=100, max_value=200)
+    assert 100 <= int(value) <= 200
+
+
+def test_max_len_truncates_result():
+    value = fake.sentence(max_len=10)
+    assert len(value) <= 10
+
+
+def test_max_len_strips_trailing_spaces():
+    value = fake.sentence(max_len=5)
+    assert not value.endswith(' ')
+
+
+def test_max_len_no_truncation_when_shorter():
+    value = fake.word(max_len=1000)
+    assert len(value) <= 1000
