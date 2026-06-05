@@ -178,8 +178,7 @@ class DateTime(String):
             result = self._value.strftime(self.date_format)
 
             if self.rstrip_zeros:
-                while '0Z' in result:
-                    result = result.replace('0Z', 'Z')
+                result = result.replace('000Z', 'Z')
 
             return result
 
