@@ -1,4 +1,4 @@
-from tests.data import Base, Mix, Optional
+from tests.data import Base, ComposeBase, Mix, Optional
 
 
 def test_required_fields_with_values():
@@ -110,3 +110,86 @@ def test_array_of_dicts_with_value_is_generated():
         {'string_field': 'name1', 'int_field': 1},
         {'string_field': 'name2', 'int_field': 2}
     ]
+
+
+# --- classmethod tests (Base.with_values instead of Base().with_values) ---
+
+def test_classmethod_generates_required_fields():
+    entity = Base.with_values({})
+    assert entity.StringField.generated
+    assert entity.IntField.generated
+
+
+def test_classmethod_uses_provided_value():
+    new_value = 'provided_value'
+    entity = Base.with_values({Base.StringField.name: new_value})
+    assert entity.StringField.value == new_value
+
+
+def test_classmethod_still_generates_non_provided_required_field():
+    entity = Base.with_values({Base.StringField.name: 'provided'})
+    assert entity.IntField.generated
+
+
+def test_classmethod_is_full_false_does_not_generate_optional_fields():
+    entity = Optional.with_values({})
+    assert not entity.OptString.generated
+    assert not entity.OptInt.generated
+
+
+def test_classmethod_is_full_generates_optional_fields():
+    entity = Optional.with_values({}, is_full=True)
+    assert entity.OptString.generated
+    assert entity.OptInt.generated
+
+
+def test_classmethod_provided_value_overrides_generated():
+    new_value = 'overridden'
+    entity = Base.with_values({Base.StringField.name: new_value}, is_full=True)
+    assert entity.StringField.value == new_value
+
+
+def test_classmethod_nested_dict_uses_provided_value():
+    new_value = 'nested_val'
+    entity = ComposeBase.with_values({
+        ComposeBase.FirstBase.name: {Base.StringField.name: new_value}
+    })
+    assert entity.FirstBase.StringField.value == new_value
+
+
+def test_classmethod_nested_dict_generates_other_required_nested_fields():
+    entity = ComposeBase.with_values({
+        ComposeBase.FirstBase.name: {Base.StringField.name: 'val'}
+    })
+    assert entity.FirstBase.IntField.generated
+
+
+def test_classmethod_nested_optional_dict_not_generated_when_not_full():
+    entity = ComposeBase.with_values({})
+    assert not entity.OptBase.generated
+
+
+def test_classmethod_nested_optional_dict_generated_when_full():
+    entity = ComposeBase.with_values({}, is_full=True)
+    assert entity.OptBase.generated
+
+
+def test_classmethod_nested_optional_dict_with_values_is_generated():
+    entity = ComposeBase.with_values({
+        ComposeBase.OptBase.name: {Base.StringField.name: 'val'}
+    })
+    assert entity.OptBase.generated
+
+
+def test_classmethod_nested_optional_dict_required_field_generated():
+    entity = ComposeBase.with_values({
+        ComposeBase.OptBase.name: {Base.StringField.name: 'val'}
+    })
+    assert entity.OptBase.IntField.generated
+
+
+def test_classmethod_nested_optional_dict_other_field_generated_when_full():
+    entity = ComposeBase.with_values({
+        ComposeBase.OptBase.name: {Base.StringField.name: 'val'}
+    }, is_full=True)
+    assert entity.OptBase.IntField.generated

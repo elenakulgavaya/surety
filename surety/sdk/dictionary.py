@@ -4,6 +4,27 @@ from surety.sdk.array import Array
 from surety.sdk.field import Field
 
 
+class _WithValuesDescriptor:
+    """Dispatches with_values as a classmethod (selective generate) or
+    instance method."""
+
+    def __get__(self, obj, objtype=None):
+        if obj is None:
+            def _class_call(values, is_full=False):
+                instance = objtype()
+                instance._generate_with_values(values, is_full)
+                return instance
+            return _class_call
+
+        def _instance_call(values):
+            for field, value in values.items():
+                if isinstance(field, Field):
+                    field = field.name
+                obj._set_field_value(field, value)
+            return obj
+        return _instance_call
+
+
 class Dictionary(Field):
     def __init__(self, name=None, required=True, allow_none=False,
                  is_full=False):
@@ -76,13 +97,7 @@ class Dictionary(Field):
     def generate_custom(self):
         pass
 
-    def with_values(self, values):
-        for field, value in values.items():
-            if isinstance(field, Field):
-                field = field.name
-            self._set_field_value(field, value)
-
-        return self
+    with_values = _WithValuesDescriptor()
 
     def _get_field(self, name):
         for field_name in self._get_field_names():
@@ -126,6 +141,46 @@ class Dictionary(Field):
             setattr(self, field_name, new_value)
         else:
             setattr(self, field_name, value)
+
+    def _generate_with_values(self, values, is_full):
+        """Selectively generate fields: use provided values where given, generate the rest."""
+        self._generated = True
+        self._is_none = False
+
+        if self.allow_none and not is_full:
+            self._is_none = True
+            return
+
+        values_by_name = {
+            (k.name if isinstance(k, Field) else k): v for k, v in values.items()
+        }
+
+        for field_name in self._get_field_names():
+            field_template = getattr(type(self), field_name)
+            field_key = field_template.name
+            val = values_by_name.get(field_key)
+
+            if field_key in values_by_name and val is not None:
+                if isinstance(val, dict) and isinstance(field_template, Dictionary):
+                    new_field = field_template(is_full=is_full, with_data=False)
+                    new_field._generate_with_values(val, is_full)
+                elif isinstance(val, (list, set)) and isinstance(field_template, Array):
+                    new_field = field_template(is_full=is_full, with_data=False)
+                    new_field.with_values(val)
+                else:
+                    new_field = field_template(is_full=is_full, with_data=False)
+                    new_field.with_values(val)
+                setattr(self, field_name, new_field)
+            else:
+                if is_full:
+                    _with_data = True
+                elif field_template.allow_none:
+                    _with_data = False
+                else:
+                    _with_data = field_template.required
+                setattr(self, field_name, field_template(is_full=is_full, with_data=_with_data))
+
+        self.generate_custom()
 
     def _generate(self, is_full=True, with_data=True, required=True,
                   use_default=True):
