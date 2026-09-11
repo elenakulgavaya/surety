@@ -9,6 +9,11 @@ class TypeOne(Field):
         return ''.join(random.sample(string.ascii_letters + string.digits, 6))
 
 
+class TypeOneArray(Array):
+    def __init__(self, **kwargs):
+        super().__init__(TypeOne, **kwargs)
+
+
 class TypeTwo(Field):
     def generate_value(self):
         return random.randint(0, 1000)

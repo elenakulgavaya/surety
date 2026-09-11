@@ -1,4 +1,9 @@
-from tests.data import AllowedNone, Base, ComposeBase, Mix, Optional, TypeOne
+import pytest
+
+from surety import Set
+from tests.data import (
+    AllowedNone, Base, ComposeBase, Mix, Optional, TypeOne, TypeOneArray
+)
 
 
 def test_required_fields_with_values():
@@ -231,3 +236,52 @@ def test_field_instances_in_array_values():
     new_values = [TypeOne(default='a'), TypeOne(default='b')]
     entity = Mix.with_values({Mix.ReqTypeArray.name: new_values})
     assert entity.ReqTypeArray.value == ['a', 'b']
+
+
+def test_array_classmethod_with_values():
+    result = TypeOneArray.with_values(['a', 'b'])
+    assert result.value == ['a', 'b']
+
+
+def test_set_instance_with_values_wraps_scalars():
+    s = Set(TypeOne)
+    s.with_values({'x', 'y'})
+    assert s.value == {'x', 'y'}
+
+
+def test_apply_values_with_string_key():
+    entity = Base()
+    entity.apply_values({Base.StringField.name: 'direct'})
+    assert entity.StringField.value == 'direct'
+
+
+def test_apply_values_with_field_instance_key():
+    entity = Base()
+    entity.apply_values({Base.StringField: 'by_field'})
+    assert entity.StringField.value == 'by_field'
+
+
+def test_apply_values_none_value_skips_field():
+    entity = Base()
+    original = entity.StringField.value
+    entity.apply_values({Base.StringField.name: None})
+    assert entity.StringField.value == original
+
+
+def test_apply_values_field_with_none_value_skips():
+    entity = Base()
+    original = entity.StringField.value
+    entity.apply_values({Base.StringField.name: TypeOne(name='dummy')})
+    assert entity.StringField.value == original
+
+
+def test_apply_values_dict_value_sets_nested():
+    entity = ComposeBase()
+    entity.apply_values({ComposeBase.FirstBase.name: {Base.StringField.name: 'nested'}})
+    assert entity.FirstBase.StringField.value == 'nested'
+
+
+def test_apply_values_unknown_key_raises():
+    entity = Base()
+    with pytest.raises(AttributeError):
+        entity.apply_values({'nonexistent_field': 'value'})
