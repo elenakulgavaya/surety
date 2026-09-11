@@ -1,4 +1,4 @@
-from tests.data import Base, ComposeBase, Mix, Optional
+from tests.data import AllowedNone, Base, ComposeBase, Mix, Optional
 
 
 def test_required_fields_with_values():
@@ -193,3 +193,19 @@ def test_classmethod_nested_optional_dict_other_field_generated_when_full():
         ComposeBase.OptBase.name: {Base.StringField.name: 'val'}
     }, is_full=True)
     assert entity.OptBase.IntField.generated
+
+
+def test_classmethod_array_value():
+    new_values = ['str1', 'str2']
+    entity = Mix.with_values({Mix.OptTypeArray.name: new_values})
+    assert entity.OptTypeArray.value == new_values
+
+
+def test_classmethod_allow_none_not_provided_field_value_is_none():
+    entity = AllowedNone.with_values({AllowedNone.NoneString.name: 'test'})
+    assert entity.NoneInt.value is None
+
+
+def test_classmethod_nested_allow_none_dict_is_none_when_not_full():
+    entity = Mix.with_values({Mix.NoneAllowedNone.name: {AllowedNone.NoneString.name: 'test'}})
+    assert entity.NoneAllowedNone.value is None

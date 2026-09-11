@@ -12,17 +12,11 @@ class _WithValuesDescriptor:
         if obj is None:
             def _class_call(values, is_full=False):
                 instance = objtype()
-                instance._generate_with_values(values, is_full)
+                instance.generate_with_values(values, is_full)
                 return instance
             return _class_call
 
-        def _instance_call(values):
-            for field, value in values.items():
-                if isinstance(field, Field):
-                    field = field.name
-                obj._set_field_value(field, value)
-            return obj
-        return _instance_call
+        return obj.apply_values
 
 
 class Dictionary(Field):
@@ -142,7 +136,15 @@ class Dictionary(Field):
         else:
             setattr(self, field_name, value)
 
-    def _generate_with_values(self, values, is_full):
+    def apply_values(self, values):
+        """Apply provided values to this instance without generating any other fields."""
+        for field, value in values.items():
+            if isinstance(field, Field):
+                field = field.name
+            self._set_field_value(field, value)
+        return self
+
+    def generate_with_values(self, values, is_full):
         """Selectively generate fields: use provided values where given, generate the rest."""
         self._generated = True
         self._is_none = False
@@ -163,7 +165,7 @@ class Dictionary(Field):
             if field_key in values_by_name and val is not None:
                 if isinstance(val, dict) and isinstance(field_template, Dictionary):
                     new_field = field_template(is_full=is_full, with_data=False)
-                    new_field._generate_with_values(val, is_full)
+                    new_field.generate_with_values(val, is_full)
                 elif isinstance(val, (list, set)) and isinstance(field_template, Array):
                     new_field = field_template(is_full=is_full, with_data=False)
                     new_field.with_values(val)
