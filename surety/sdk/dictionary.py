@@ -5,11 +5,11 @@ from surety.sdk.field import Field
 
 
 class _WithValuesDescriptor:
-    """Returns a callable that creates a new instance with selective generation.
+    """Dispatches with_values as a classmethod (selective generate) or instance method.
 
-    Both class and instance call: non-provided fields are auto-generated
-    (required only, unless is_full=True). Instance call defaults is_full to
-    the instance's own is_full setting and preserves the field's name and kwargs.
+    Class call: creates a new instance and runs generate_with_values — non-provided
+    fields are auto-generated (required only, unless is_full=True).
+    Instance call: delegates to apply_values, setting only the provided fields.
     """
 
     def __get__(self, obj, objtype=None):
@@ -20,22 +20,7 @@ class _WithValuesDescriptor:
                 return instance
             return _call
 
-        default_is_full = obj.is_full
-
-        def _call(values, is_full=None):
-            effective_is_full = default_is_full if is_full is None else is_full
-            existing = {
-                getattr(obj, fn).name: getattr(obj, fn).value
-                for fn in obj._get_field_names()  # pylint: disable=protected-access
-                if getattr(obj, fn).generated
-            }
-            provided = {
-                (k.name if isinstance(k, Field) else k): v
-                for k, v in values.items()
-            }
-            obj.generate_with_values({**existing, **provided}, effective_is_full)
-            return obj
-        return _call
+        return obj.apply_values
 
 
 class Dictionary(Field):
