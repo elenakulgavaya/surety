@@ -32,11 +32,11 @@ def test_embedded_dict_with_values_field_generated():
     assert entity.OptBase.StringField.generated
 
 
-def test_embedded_dict_with_values_field_not_affect_other_generated():
+def test_embedded_dict_with_values_required_field_generated():
     entity = Mix().with_values({
         Mix.OptBase.name: {Base.StringField.name: 'value'},
     })
-    assert not entity.OptBase.IntField.generated
+    assert entity.OptBase.IntField.generated
 
 
 def test_embedded_dict_with_values_new_value():
@@ -52,7 +52,7 @@ def test_embedded_dict_with_values_new_dictionary_value():
     entity = Mix().with_values({
         Mix.OptBase.name: {Base.StringField.name: new_value}
     })
-    assert entity.OptBase.value == {Base.StringField.name: new_value}
+    assert entity.OptBase.value[Base.StringField.name] == new_value
 
 
 def test_array_of_fields_with_values_is_generated():
@@ -220,3 +220,16 @@ def test_none_value_in_dict_does_not_prevent_generation():
     entity = Base.with_values({Base.StringField.name: None, Base.IntField.name: 42})
     assert entity.StringField.generated
     assert entity.IntField.value == 42
+
+
+def test_field_instance_as_value():
+    from tests.data import TypeOne
+    entity = Base.with_values({Base.StringField.name: TypeOne(default='field_val')})
+    assert entity.StringField.value == 'field_val'
+
+
+def test_field_instances_in_array_values():
+    from tests.data import TypeOne
+    new_values = [TypeOne(default='a'), TypeOne(default='b')]
+    entity = Mix.with_values({Mix.ReqTypeArray.name: new_values})
+    assert entity.ReqTypeArray.value == ['a', 'b']

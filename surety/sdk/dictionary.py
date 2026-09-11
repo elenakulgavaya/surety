@@ -5,18 +5,37 @@ from surety.sdk.field import Field
 
 
 class _WithValuesDescriptor:
-    """Dispatches with_values as a classmethod (selective generate) or
-    instance method."""
+    """Returns a callable that creates a new instance with selective generation.
+
+    Both class and instance call: non-provided fields are auto-generated
+    (required only, unless is_full=True). Instance call defaults is_full to
+    the instance's own is_full setting and preserves the field's name and kwargs.
+    """
 
     def __get__(self, obj, objtype=None):
         if obj is None:
-            def _class_call(values, is_full=False):
+            def _call(values, is_full=False):
                 instance = objtype()
                 instance.generate_with_values(values, is_full)
                 return instance
-            return _class_call
+            return _call
 
-        return obj.apply_values
+        default_is_full = obj.is_full
+
+        def _call(values, is_full=None):
+            effective_is_full = default_is_full if is_full is None else is_full
+            existing = {
+                getattr(obj, fn).name: getattr(obj, fn).value
+                for fn in obj._get_field_names()
+                if getattr(obj, fn).generated
+            }
+            provided = {
+                (k.name if isinstance(k, Field) else k): v
+                for k, v in values.items()
+            }
+            obj.generate_with_values({**existing, **provided}, effective_is_full)
+            return obj
+        return _call
 
 
 class Dictionary(Field):
@@ -111,28 +130,22 @@ class Dictionary(Field):
         if isinstance(value, Field):
             value = value.value
 
+        if value is None:
+            return
+
         field_name, field = self._get_field(field_name)
 
         if isinstance(value, dict):
-            new_value = field.with_values(value)
+            setattr(self, field_name, field.with_values(value))
 
-            if isinstance(field, Dictionary):
-                new_value.generated = True
-
-            setattr(self, field_name, new_value)
-
-        elif isinstance(value, list) and isinstance(field, Array):
-            new_value = []
-
-            for val in value:
-                if isinstance(val, Field):
-                    val = val.value
-
-                new_value.append(
-                    field.field(is_full=self.is_full).with_values(val)
+        elif isinstance(value, (list, set)) and isinstance(field, Array):
+            new_value = [
+                field.field(is_full=self.is_full).with_values(
+                    val.value if isinstance(val, Field) else val
                 )
-
-            setattr(self, field_name, new_value)
+                for val in value
+            ]
+            setattr(self, field_name, type(value)(new_value) if isinstance(value, set) else new_value)
         else:
             setattr(self, field_name, value)
 
@@ -157,6 +170,11 @@ class Dictionary(Field):
             (k.name if isinstance(k, Field) else k): v for k, v in values.items()
         }
 
+        known_keys = {getattr(type(self), fn).name for fn in self._get_field_names()}
+        for key in values_by_name:
+            if key not in known_keys:
+                raise AttributeError(f'No attribute with name {key}')
+
         for field_name in self._get_field_names():
             field_template = getattr(type(self), field_name)
             field_key = field_template.name
@@ -166,13 +184,9 @@ class Dictionary(Field):
                 if isinstance(val, dict) and isinstance(field_template, Dictionary):
                     new_field = field_template(is_full=is_full, with_data=False)
                     new_field.generate_with_values(val, is_full)
-                elif isinstance(val, (list, set)) and isinstance(field_template, Array):
-                    new_field = field_template(is_full=is_full, with_data=False)
-                    new_field.with_values(val)
+                    setattr(self, field_name, new_field)
                 else:
-                    new_field = field_template(is_full=is_full, with_data=False)
-                    new_field.with_values(val)
-                setattr(self, field_name, new_field)
+                    self._set_field_value(field_key, val)
             else:
                 if is_full:
                     _with_data = True
@@ -249,7 +263,7 @@ class Dictionary(Field):
                         'Assigning entity to primitive'
                     ) from ex
 
-            current_value.with_values(value)
-            object.__setattr__(self, key, current_value)
+            updated = current_value.with_values(value)
+            object.__setattr__(self, key, updated)
         else:
             object.__setattr__(self, key, value)
