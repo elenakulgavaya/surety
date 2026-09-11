@@ -3,6 +3,19 @@ import random
 from surety.sdk.field import Field
 
 
+class _ArrayWithValuesDescriptor:
+    def __get__(self, obj, objtype=None):
+        if obj is None:
+            def _call(values):
+                instance = objtype()
+                return instance.apply_values(values)
+            return _call
+
+        def _call(values):
+            return obj.apply_values(values)
+        return _call
+
+
 class Array(Field):
     def __init__(self, field, name=None, required=True, allow_none=False,
                  is_full=False, min_len=1, max_len=1):
@@ -67,7 +80,7 @@ class Array(Field):
     def append(self, value):
         self._value.append(value)
 
-    def with_values(self, values):
+    def apply_values(self, values):
         if isinstance(values, list):
             _values = []
 
@@ -81,9 +94,11 @@ class Array(Field):
 
         return super().with_values(values)
 
+    with_values = _ArrayWithValuesDescriptor()
+
 
 class Set(Array):
-    def with_values(self, values):
+    def apply_values(self, values):
         if isinstance(values, (set, list)):
             _values = set()
 
@@ -95,7 +110,7 @@ class Set(Array):
 
             return self
 
-        return super().with_values(values)
+        return super().apply_values(values)
 
     @property
     def value(self):

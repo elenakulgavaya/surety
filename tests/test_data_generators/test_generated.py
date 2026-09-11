@@ -68,3 +68,10 @@ def test_optional_allownone_not_generated():
 
 def test_optional_allownone_generated_in_full():
     assert Mix(is_full=True).NotNoneAllowedNone.OptNoneInt.generated
+
+
+def test_generated_setter_marks_generated():
+    opt = ComposeBase().OptBase
+    assert not opt.generated
+    opt.generated = True
+    assert opt.generated
