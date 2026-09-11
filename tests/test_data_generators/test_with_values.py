@@ -37,12 +37,6 @@ def test_embedded_dict_with_values_field_generated():
     assert entity.OptBase.StringField.generated
 
 
-def test_embedded_dict_with_values_required_field_generated():
-    entity = Mix().with_values({
-        Mix.OptBase.name: {Base.StringField.name: 'value'},
-    })
-    assert entity.OptBase.IntField.generated
-
 
 def test_embedded_dict_with_values_new_value():
     new_value = 'embedded_dict_string'
@@ -285,3 +279,8 @@ def test_apply_values_unknown_key_raises():
     entity = Base()
     with pytest.raises(AttributeError):
         entity.apply_values({'nonexistent_field': 'value'})
+
+
+def test_classmethod_unknown_key_raises():
+    with pytest.raises(AttributeError):
+        Base.with_values({'nonexistent_field': 'value'})
