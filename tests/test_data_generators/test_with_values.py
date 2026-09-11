@@ -1,4 +1,4 @@
-from tests.data import AllowedNone, Base, ComposeBase, Mix, Optional
+from tests.data import AllowedNone, Base, ComposeBase, Mix, Optional, TypeOne
 
 
 def test_required_fields_with_values():
@@ -223,13 +223,11 @@ def test_none_value_in_dict_does_not_prevent_generation():
 
 
 def test_field_instance_as_value():
-    from tests.data import TypeOne
     entity = Base.with_values({Base.StringField.name: TypeOne(default='field_val')})
     assert entity.StringField.value == 'field_val'
 
 
 def test_field_instances_in_array_values():
-    from tests.data import TypeOne
     new_values = [TypeOne(default='a'), TypeOne(default='b')]
     entity = Mix.with_values({Mix.ReqTypeArray.name: new_values})
     assert entity.ReqTypeArray.value == ['a', 'b']

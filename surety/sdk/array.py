@@ -6,13 +6,13 @@ from surety.sdk.field import Field
 class _ArrayWithValuesDescriptor:
     def __get__(self, obj, objtype=None):
         if obj is None:
-            def _call(values, is_full=False):
+            def _call(values):
                 instance = objtype()
-                return instance._apply_values(values)
+                return instance.apply_values(values)
             return _call
 
         def _call(values):
-            return obj._apply_values(values)
+            return obj.apply_values(values)
         return _call
 
 
@@ -80,7 +80,7 @@ class Array(Field):
     def append(self, value):
         self._value.append(value)
 
-    def _apply_values(self, values):
+    def apply_values(self, values):
         if isinstance(values, list):
             _values = []
 
@@ -98,7 +98,7 @@ class Array(Field):
 
 
 class Set(Array):
-    def _apply_values(self, values):
+    def apply_values(self, values):
         if isinstance(values, (set, list)):
             _values = set()
 
@@ -110,7 +110,7 @@ class Set(Array):
 
             return self
 
-        return super()._apply_values(values)
+        return super().apply_values(values)
 
     @property
     def value(self):

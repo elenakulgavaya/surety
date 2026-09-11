@@ -26,7 +26,7 @@ class _WithValuesDescriptor:
             effective_is_full = default_is_full if is_full is None else is_full
             existing = {
                 getattr(obj, fn).name: getattr(obj, fn).value
-                for fn in obj._get_field_names()
+                for fn in obj._get_field_names()  # pylint: disable=protected-access
                 if getattr(obj, fn).generated
             }
             provided = {
@@ -145,7 +145,8 @@ class Dictionary(Field):
                 )
                 for val in value
             ]
-            setattr(self, field_name, type(value)(new_value) if isinstance(value, set) else new_value)
+            result = type(value)(new_value) if isinstance(value, set) else new_value
+            setattr(self, field_name, result)
         else:
             setattr(self, field_name, value)
 
