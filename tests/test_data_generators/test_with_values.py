@@ -209,3 +209,14 @@ def test_classmethod_allow_none_not_provided_field_value_is_none():
 def test_classmethod_nested_allow_none_dict_is_none_when_not_full():
     entity = Mix.with_values({Mix.NoneAllowedNone.name: {AllowedNone.NoneString.name: 'test'}})
     assert entity.NoneAllowedNone.value is None
+
+
+def test_none_value_in_dict_generates_field():
+    entity = Base.with_values({Base.StringField.name: None})
+    assert entity.StringField.generated
+
+
+def test_none_value_in_dict_does_not_prevent_generation():
+    entity = Base.with_values({Base.StringField.name: None, Base.IntField.name: 42})
+    assert entity.StringField.generated
+    assert entity.IntField.value == 42
