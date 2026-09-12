@@ -175,7 +175,11 @@ class Dictionary(Field):
                     new_field.generate_with_values(val, is_full)
                     setattr(self, field_name, new_field)
                 else:
-                    self._set_field_value(field_key, val)
+                    _val = val.value if isinstance(val, Field) else val
+                    if _val is not None:
+                        new_field = field_template(is_full=is_full, with_data=False)
+                        new_field.with_values(_val)
+                        setattr(self, field_name, new_field)
             else:
                 if is_full:
                     _with_data = True
