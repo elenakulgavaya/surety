@@ -3,6 +3,8 @@ import json
 from surety.sdk.array import Array
 from surety.sdk.field import Field
 
+_FIELD_NAMES_CACHE = {}
+
 
 class _WithValuesDescriptor:
     """Dispatches with_values as a classmethod (selective generate) or instance method.
@@ -33,16 +35,14 @@ class Dictionary(Field):
         super().__init__(name, required, allow_none)
 
     def _get_field_names(self):
-        result = []
-
-        for attr_name in dir(self.__class__):
-            if attr_name.startswith('_'):
-                continue
-
-            if isinstance(getattr(self.__class__, attr_name), Field):
-                result.append(attr_name)
-
-        return result
+        cls = type(self)
+        if cls not in _FIELD_NAMES_CACHE:
+            _FIELD_NAMES_CACHE[cls] = [
+                attr_name for attr_name in dir(cls)
+                if not attr_name.startswith('_')
+                and isinstance(getattr(cls, attr_name), Field)
+            ]
+        return _FIELD_NAMES_CACHE[cls]
 
     @property
     def generated(self):
