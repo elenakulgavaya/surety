@@ -121,7 +121,10 @@ class Dictionary(Field):
         field_name, field = self._get_field(field_name)
 
         if isinstance(value, dict):
-            setattr(self, field_name, field.with_values(value))
+            new_value = field.with_values(value)
+            if isinstance(new_value, Dictionary):
+                new_value.generated = True
+            setattr(self, field_name, new_value)
 
         elif isinstance(value, (list, set)) and isinstance(field, Array):
             new_value = [
