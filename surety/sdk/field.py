@@ -25,8 +25,9 @@ class Field(metaclass=ABCMeta):
         if hasattr(self, '_kwargs'):
             return
 
-        self._kwargs = {k: v for k, v in local_vars.items()
-                        if k not in ('self', '__class__')}
+        local_vars.pop('self', None)
+        local_vars.pop('__class__', None)
+        self._kwargs = local_vars
 
     @property
     def generated(self):

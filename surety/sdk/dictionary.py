@@ -3,7 +3,26 @@ import json
 from surety.sdk.array import Array
 from surety.sdk.field import Field
 
-_FIELD_NAMES_CACHE = {}
+_FIELD_CACHE = {}  # cls -> (field_names, known_keys_frozenset)
+
+
+def _get_field_cache(cls):
+    if cls not in _FIELD_CACHE:
+        names = [
+            attr_name for attr_name in dir(cls)
+            if not attr_name.startswith('_')
+            and isinstance(getattr(cls, attr_name), Field)
+        ]
+        known = frozenset(getattr(cls, fn).name for fn in names)
+        _FIELD_CACHE[cls] = (names, known)
+    return _FIELD_CACHE[cls]
+
+
+def _needs_json_loads(current, update):
+    return (
+        (isinstance(current, Dictionary) and not isinstance(update, dict))
+        or (isinstance(current, Array) and not isinstance(update, (list, set)))
+    )
 
 
 class _WithValuesDescriptor:
@@ -35,14 +54,7 @@ class Dictionary(Field):
         super().__init__(name, required, allow_none)
 
     def _get_field_names(self):
-        cls = type(self)
-        if cls not in _FIELD_NAMES_CACHE:
-            _FIELD_NAMES_CACHE[cls] = [
-                attr_name for attr_name in dir(cls)
-                if not attr_name.startswith('_')
-                and isinstance(getattr(cls, attr_name), Field)
-            ]
-        return _FIELD_NAMES_CACHE[cls]
+        return _get_field_cache(type(self))[0]
 
     @property
     def generated(self):
@@ -159,12 +171,12 @@ class Dictionary(Field):
             (k.name if isinstance(k, Field) else k): v for k, v in values.items()
         }
 
-        known_keys = {getattr(type(self), fn).name for fn in self._get_field_names()}
+        field_names, known_keys = _get_field_cache(type(self))
         for key in values_by_name:
             if key not in known_keys:
                 raise AttributeError(f'No attribute with name {key}')
 
-        for field_name in self._get_field_names():
+        for field_name in field_names:
             field_template = getattr(type(self), field_name)
             field_key = field_template.name
             val = values_by_name.get(field_key)
@@ -235,17 +247,9 @@ class Dictionary(Field):
         else:
             current_value = None
 
-        def needs_json_loads(current, update):
-            dict_needs_load = (isinstance(current, Dictionary) and
-                               not isinstance(update, dict))
-            list_needs_load = (isinstance(current, Array) and
-                               not isinstance(update, (list, set)))
-
-            return dict_needs_load or list_needs_load
-
         if (isinstance(current_value, Field) and
                 not isinstance(value, Field)):
-            if needs_json_loads(current=current_value, update=value):
+            if _needs_json_loads(current_value, value):
                 try:
                     if isinstance(value, bytes):
                         value = value.decode('utf-8')
