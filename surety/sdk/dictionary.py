@@ -33,16 +33,14 @@ class Dictionary(Field):
         super().__init__(name, required, allow_none)
 
     def _get_field_names(self):
-        result = []
-
-        for attr_name in dir(self.__class__):
-            if attr_name.startswith('_'):
-                continue
-
-            if isinstance(getattr(self.__class__, attr_name), Field):
-                result.append(attr_name)
-
-        return result
+        cls = type(self)
+        if '_field_names_cache' not in cls.__dict__:
+            cls._field_names_cache = [
+                attr_name for attr_name in dir(cls)
+                if not attr_name.startswith('_')
+                and isinstance(getattr(cls, attr_name), Field)
+            ]
+        return cls._field_names_cache
 
     @property
     def generated(self):
