@@ -86,7 +86,8 @@ class Array(Field):
 
             for value in values:
                 if not isinstance(value, self.field.__class__):
-                    value = self.field(is_full=False).with_values(value)
+                    v = value.value if isinstance(value, Field) else value
+                    value = self.field(is_full=False).with_values(v)
                 _values.append(value)
             self._value = _values
 
@@ -104,7 +105,8 @@ class Set(Array):
 
             for value in values:
                 if not isinstance(value, self.field.__class__):
-                    value = self.field(is_full=False).with_values(value)
+                    v = value.value if isinstance(value, Field) else value
+                    value = self.field(is_full=False).with_values(v)
                 _values.add(value)
             self._value = _values
 
