@@ -36,7 +36,7 @@ class _WithValuesDescriptor:
     def __get__(self, obj, objtype=None):
         if obj is None:
             def _call(values, is_full=False):
-                instance = objtype()
+                instance = objtype(_with_data=False)
                 instance.generate_with_values(values, is_full)
                 return instance
             return _call
@@ -46,12 +46,12 @@ class _WithValuesDescriptor:
 
 class Dictionary(Field):
     def __init__(self, name=None, required=True, allow_none=False,
-                 is_full=False):
+                 is_full=False, _with_data=True):
         self._generated = False
         self._is_none = False
         self.save_kwargs(locals())
         self.is_full = is_full
-        super().__init__(name, required, allow_none)
+        super().__init__(name, required, allow_none, _with_data=_with_data)
 
     def _get_field_names(self):
         return _get_field_cache(type(self))[0]

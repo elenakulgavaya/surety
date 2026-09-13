@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 
 class Field(metaclass=ABCMeta):
     def __init__(self, name=None, required=True, allow_none=False,
-                 default=None):
+                 default=None, _with_data=True):
         self.required = required
         self.allow_none = allow_none
         self.name = name
@@ -17,7 +17,8 @@ class Field(metaclass=ABCMeta):
             self.is_full = True
 
         if name is None:
-            self._generate(is_full=self.is_full)
+            if _with_data:
+                self._generate(is_full=self.is_full)
         else:
             self._generate(with_data=False)
 
@@ -27,6 +28,7 @@ class Field(metaclass=ABCMeta):
 
         local_vars.pop('self', None)
         local_vars.pop('__class__', None)
+        local_vars.pop('_with_data', None)
         self._kwargs = local_vars
 
     @property
