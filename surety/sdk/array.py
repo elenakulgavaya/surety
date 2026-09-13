@@ -7,7 +7,7 @@ class _ArrayWithValuesDescriptor:
     def __get__(self, obj, objtype=None):
         if obj is None:
             def _call(values):
-                instance = objtype()
+                instance = objtype(_with_data=False)
                 return instance.apply_values(values)
             return _call
 
@@ -18,7 +18,7 @@ class _ArrayWithValuesDescriptor:
 
 class Array(Field):
     def __init__(self, field, name=None, required=True, allow_none=False,
-                 is_full=False, min_len=1, max_len=1):
+                 is_full=False, min_len=1, max_len=1, _with_data=True):
         if not hasattr(self, '_kwargs'):
             self.save_kwargs(locals())
 
@@ -27,7 +27,7 @@ class Array(Field):
         self.min_len = min_len
         self.max_len = max_len
         self._value = None
-        super().__init__(name, required, allow_none)
+        super().__init__(name, required, allow_none, _with_data=_with_data)
 
     @property
     def field(self):
