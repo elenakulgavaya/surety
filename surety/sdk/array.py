@@ -17,8 +17,12 @@ class _ArrayWithValuesDescriptor:
 
 
 class Array(Field):
-    def __init__(self, field, name=None, required=True, allow_none=False,
+    item_type = None  # subclasses may declare the item type here instead of __init__
+
+    def __init__(self, field=None, name=None, required=True, allow_none=False,
                  is_full=False, min_len=1, max_len=1, _with_data=True):
+        if field is None:
+            field = type(self).item_type
         if not hasattr(self, '_kwargs'):
             self.save_kwargs(locals())
 
