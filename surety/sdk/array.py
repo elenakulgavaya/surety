@@ -62,7 +62,7 @@ class Array(Field):
                   use_default=None):
         # Not processed: duplicated entities, duplicated empty dicts
         if with_data and (is_full or required):
-            self._value = [self.field(is_full=is_full) for _ in range(
+            self._value = [self.field(is_full=is_full) for _ in range(  # pylint: disable=not-callable
                 random.randint(self.min_len, self.max_len)
             )]
 
@@ -91,7 +91,7 @@ class Array(Field):
             for value in values:
                 if not isinstance(value, self.field.__class__):
                     v = value.value if isinstance(value, Field) else value
-                    value = self.field(is_full=False).with_values(v)
+                    value = self.field(is_full=False).with_values(v)  # pylint: disable=not-callable
                 _values.append(value)
             self._value = _values
 
@@ -110,7 +110,7 @@ class Set(Array):
             for value in values:
                 if not isinstance(value, self.field.__class__):
                     v = value.value if isinstance(value, Field) else value
-                    value = self.field(is_full=False).with_values(v)
+                    value = self.field(is_full=False).with_values(v)  # pylint: disable=not-callable
                 _values.add(value)
             self._value = _values
 
