@@ -64,3 +64,19 @@ def test_set_with_no_values():
     )
     new_set.with_values('')
     assert new_set.value == set()
+
+
+def test_item_type_subclass_generates():
+    class Names(Array):
+        item_type = String
+
+    names = Names()
+    assert isinstance(names.value, list)
+
+
+def test_item_type_subclass_with_values():
+    class Names(Array):
+        item_type = String
+
+    result = Names.with_values(['alice', 'bob'])
+    assert result.value == ['alice', 'bob']
