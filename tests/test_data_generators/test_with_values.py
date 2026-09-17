@@ -205,8 +205,18 @@ def test_classmethod_allow_none_not_provided_field_value_is_none():
     assert entity.NoneInt.value is None
 
 
-def test_classmethod_nested_allow_none_dict_is_none_when_not_full():
+def test_classmethod_nested_allow_none_dict_is_none_when_with_value():
     entity = Mix.with_values({Mix.NoneAllowedNone.name: {AllowedNone.NoneString.name: 'test'}})
+    assert entity.NoneAllowedNone.value == {'none_int': None, 'none_str': 'test'}
+
+
+def test_classmethod_nested_allow_none_dict_is_none_when_with_none_value():
+    entity = Mix.with_values({Mix.NoneAllowedNone.name: None})
+    assert entity.NoneAllowedNone.value is None
+
+
+def test_classmethod_nested_allow_none_dict_is_none_when_not_full():
+    entity = Mix.with_values({Mix.ReqOptional.name: {Optional.OptString.name: 'test'}})
     assert entity.NoneAllowedNone.value is None
 
 

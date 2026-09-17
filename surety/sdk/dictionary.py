@@ -163,10 +163,6 @@ class Dictionary(Field):
         self._generated = True
         self._is_none = False
 
-        if self.allow_none and not is_full:
-            self._is_none = True
-            return
-
         values_by_name = {
             (k.name if isinstance(k, Field) else k): v for k, v in values.items()
         }
