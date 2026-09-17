@@ -163,7 +163,7 @@ class Dictionary(Field):
         self._generated = True
         self._is_none = False
 
-        if self.allow_none and not is_full:
+        if values is None and self.allow_none and not is_full:
             self._is_none = True
             return
 
