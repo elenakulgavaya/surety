@@ -1,3 +1,8 @@
+/* Prevent Chrome from scrolling past page boundaries (blank space after footer) */
+.page {
+    min-height: 100dvh;
+}
+
 @media (max-width: 63em) {
     .mobile-header .brand {
         background-image: url("surety.png");
@@ -17,6 +22,17 @@
     .sidebar-sticky {
         overflow-y: auto;
         overscroll-behavior: contain;
+    }
+
+    /* Reduce version selector visual weight so it doesn't overwhelm the ads below it */
+    #furo-readthedocs-versions {
+        font-size: var(--font-size--small);
+    }
+
+    #furo-readthedocs-versions .rst-current-version,
+    #furo-readthedocs-versions:focus-within .rst-current-version,
+    #furo-readthedocs-versions:hover .rst-current-version {
+        padding: 6px 12px;
     }
 }
 
