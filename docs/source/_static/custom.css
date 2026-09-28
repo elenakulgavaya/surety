@@ -14,7 +14,8 @@
         overflow: hidden;
     }
 
-    .sidebar-scroll {
+    .sidebar-sticky {
+        overflow-y: auto;
         overscroll-behavior: contain;
     }
 }
