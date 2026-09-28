@@ -9,6 +9,14 @@
         font-size: 0;
         color: transparent;
     }
+
+    body:has(#__navigation:checked) {
+        overflow: hidden;
+    }
+
+    .sidebar-scroll {
+        overscroll-behavior: contain;
+    }
 }
 
 .sidebar-section {
