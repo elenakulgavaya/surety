@@ -25,6 +25,17 @@ def _needs_json_loads(current, update):
     )
 
 
+def _unwrap_field(value):
+    if not isinstance(value, Field):
+        return value
+
+    # This supports working with formatted strings based on dicts
+    if hasattr(value, 'to_dict'):
+        return value.to_dict()
+
+    return value.value
+
+
 class _WithValuesDescriptor:
     """Dispatches with_values as a classmethod (selective generate) or instance method.
 
@@ -124,9 +135,7 @@ class Dictionary(Field):
 
         self._is_none = False
 
-        if isinstance(value, Field):
-            # This supports working with formatted strings based on dicts
-            value = value.to_dict() if hasattr(value, 'to_dict') else value.value
+        value = _unwrap_field(value)
 
         if value is None:
             return
@@ -184,15 +193,7 @@ class Dictionary(Field):
                     new_field.generate_with_values(val, is_full)
                     setattr(self, field_name, new_field)
                 else:
-                    _val = val
-
-                    # This supports working with formatted strings based on dicts
-                    if isinstance(val, Field):
-                        if hasattr(val, 'to_dict'):
-                            _val = val.to_dict()
-                        else:
-                            _val = val.value
-
+                    _val = _unwrap_field(val)
                     if _val is not None:
                         new_field = field_template(is_full=is_full, with_data=False)
                         new_field.with_values(_val)

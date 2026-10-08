@@ -211,7 +211,7 @@ class FormattedString(Dictionary):
 
     @property
     def full_value(self):
-        raise NotImplementedError
+        return self.value
 
     def to_dict(self):
         return super().value

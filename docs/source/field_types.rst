@@ -252,9 +252,7 @@ Use ``to_dict()`` to get the individual parts:
    ref.value      # 'user/5'
    ref.to_dict()  # {'id': 5, 'kind': 'user'}
 
-``full_value`` is not supported and raises ``NotImplementedError``. This also
-applies to ``full_value`` of any ``Dictionary`` that contains a
-``FormattedString``.
+``full_value`` returns the same formatted string as ``value``.
 
 Raw
 ---

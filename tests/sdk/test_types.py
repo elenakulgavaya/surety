@@ -3,8 +3,6 @@ import uuid
 
 from datetime import datetime
 
-import pytest
-
 from surety import (
     Bool, DateTime, Decimal, Enum, Float, Int, Raw, String, StringDecimal,
     Uuid, Dictionary, FormattedString
@@ -254,6 +252,13 @@ def test_formatted_string_in_dictionary_override_from_field():
     assert value['ref'] == 'user/5'
 
 
-def test_formatted_string_full_value_not_implemented():
-    with pytest.raises(NotImplementedError):
-        _ = Reference().full_value
+def test_formatted_string_full_value():
+    ref = Reference().with_values({'kind': 'user', 'id': 5})
+    assert ref.full_value == 'user/5'
+
+
+def test_formatted_string_in_dictionary_full_value():
+    value = WithReference.with_values({
+        WithReference.Ref: {'kind': 'user', 'id': 5}
+    }).full_value
+    assert value['ref'] == 'user/5'
