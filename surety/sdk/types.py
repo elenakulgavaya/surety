@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 from surety.sdk import fakeable, dates
 from surety.sdk.base_enum import BaseEnum
 from surety.sdk.field import Field
+from surety.sdk.dictionary import Dictionary
 from surety.process import dictionary
 
 
@@ -199,3 +200,18 @@ class DateTime(String):
         new_time = local_time.astimezone(to_zone)
 
         return new_time.strftime(date_format)
+
+
+class FormattedString(Dictionary):
+    pattern = None
+
+    @property
+    def value(self):
+        return self.pattern.format(**super().value)
+
+    @property
+    def full_value(self):
+        return self.value
+
+    def to_dict(self):
+        return super().value

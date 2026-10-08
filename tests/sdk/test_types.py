@@ -5,7 +5,7 @@ from datetime import datetime
 
 from surety import (
     Bool, DateTime, Decimal, Enum, Float, Int, Raw, String, StringDecimal,
-    Uuid, Dictionary
+    Uuid, Dictionary, FormattedString
 )
 from surety.sdk.fakeable import fake
 
@@ -179,3 +179,86 @@ def test_string_fake_as_callable():
 def test_string_fake_as_callable_max_len():
     value = String(fake_as=fake.company, max_len=5).value
     assert len(value) == 5
+
+
+class Reference(FormattedString):
+    pattern = '{kind}/{id}'
+
+    Kind = String(name='kind')
+    Id = Int(name='id')
+
+
+class WithReference(Dictionary):
+    Ref = Reference(name='ref')
+    Name = String(name='name')
+
+
+def test_generate_formatted_string():
+    ref = Reference()
+    parts = ref.to_dict()
+
+    assert ref.value == f"{parts['kind']}/{parts['id']}"
+
+
+def test_formatted_string_to_dict():
+    ref = Reference().with_values({'kind': 'user', 'id': 5})
+    assert ref.to_dict() == {'kind': 'user', 'id': 5}
+
+
+def test_formatted_string_with_values():
+    value = Reference().with_values({'kind': 'user', 'id': 5}).value
+    assert value == 'user/5'
+
+
+def test_formatted_string_with_values_partial():
+    value = Reference.with_values({Reference.Kind: 'user'}).value
+    kind, ref_id = value.split('/')
+
+    assert kind == 'user'
+    assert ref_id.isdigit()
+
+
+def test_formatted_string_in_dictionary():
+    value = WithReference().value
+    assert isinstance(value['ref'], str)
+    assert '/' in value['ref']
+
+
+def test_formatted_string_in_dictionary_from_dict():
+    value = WithReference.with_values({
+        WithReference.Ref: {'kind': 'user', 'id': 5}
+    }).value
+    assert value['ref'] == 'user/5'
+
+
+def test_formatted_string_in_dictionary_from_field():
+    value = WithReference.with_values({
+        WithReference.Ref: Reference.with_values({'kind': 'user', 'id': 5})
+    }).value
+    assert value['ref'] == 'user/5'
+
+
+def test_formatted_string_in_dictionary_override():
+    value = WithReference().with_values({
+        WithReference.Ref: {'kind': 'user', 'id': 5}
+    }).value
+    assert value['ref'] == 'user/5'
+
+
+def test_formatted_string_in_dictionary_override_from_field():
+    value = WithReference().with_values({
+        WithReference.Ref: Reference.with_values({'kind': 'user', 'id': 5})
+    }).value
+    assert value['ref'] == 'user/5'
+
+
+def test_formatted_string_full_value():
+    ref = Reference().with_values({'kind': 'user', 'id': 5})
+    assert ref.full_value == 'user/5'
+
+
+def test_formatted_string_in_dictionary_full_value():
+    value = WithReference.with_values({
+        WithReference.Ref: {'kind': 'user', 'id': 5}
+    }).full_value
+    assert value['ref'] == 'user/5'
