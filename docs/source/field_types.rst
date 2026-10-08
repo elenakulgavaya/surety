@@ -204,6 +204,58 @@ DateTime fields support timezone conversion:
        Pattern.DATETIME_DELIM_T_WITH_ZONE, new_tz='US/Eastern'
    )
 
+FormattedString
+---------------
+
+Builds a string from several generated parts. Subclass ``FormattedString``,
+set a ``pattern`` using ``str.format`` placeholders, and declare one field per
+placeholder — the field ``name`` must match the placeholder.
+
+.. code-block:: python
+
+   from surety import FormattedString, Int, String
+
+   class Reference(FormattedString):
+       pattern = '{kind}/{id}'
+
+       Kind = String(name='kind')
+       Id = Int(name='id')
+
+   class Order(Dictionary):
+       Ref = Reference(name='ref')
+
+   Order().value  # {'ref': 'xKqWpLm/4821'}
+
+Set the parts with ``with_values``, either as a dict or as a
+``FormattedString`` instance. Parts you leave out are generated:
+
+.. code-block:: python
+
+   Order.with_values({Order.Ref.name: {
+       Reference.Kind.name: 'user',
+       Reference.Id.name: 5
+   }}).value
+   # {'ref': 'user/5'}
+
+   Order.with_values({
+       Order.Ref.name: Reference.with_values({
+           Reference.Kind.name: 'user'
+       })
+   }).value
+   # {'ref': 'user/7632'}
+
+Use ``to_dict()`` to get the individual parts:
+
+.. code-block:: python
+
+   ref = Reference().with_values({'kind': 'user', 'id': 5})
+   ref.value      # 'user/5'
+   ref.to_dict()  # {'id': 5, 'kind': 'user'}
+
+``full_value`` is not supported and raises ``NotImplementedError``. This also
+applies to ``full_value`` of any ``Dictionary`` that contains a
+``FormattedString``.
+
 Raw
 ---
 
