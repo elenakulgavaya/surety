@@ -19,9 +19,12 @@ def _get_field_cache(cls):
 
 
 def _needs_json_loads(current, update):
+    from surety.sdk.types import FormattedString
     return (
-        (isinstance(current, Dictionary) and not isinstance(update, dict))
-        or (isinstance(current, Array) and not isinstance(update, (list, set)))
+        (isinstance(current, Dictionary) and
+         not isinstance(current, FormattedString) and
+         not isinstance(update, dict)
+        ) or (isinstance(current, Array) and not isinstance(update, (list, set)))
     )
 
 
