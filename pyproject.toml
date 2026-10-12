@@ -32,6 +32,7 @@ keywords = [
 ]
 dependencies = [
     "Faker==40.15.0",
+    "parse==1.22.3",
     "pytz==2026.2",
 ]
 classifiers = [
