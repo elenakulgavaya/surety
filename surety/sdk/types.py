@@ -4,6 +4,8 @@ import random
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
+from parse import parse
+
 from surety.sdk import fakeable, dates
 from surety.sdk.base_enum import BaseEnum
 from surety.sdk.field import Field
@@ -215,3 +217,9 @@ class FormattedString(Dictionary):
 
     def to_dict(self):
         return super().value
+
+    def apply_values(self, values):
+        if isinstance(values, str):
+            values = parse(self.pattern, values).named
+
+        return super().apply_values(values)
