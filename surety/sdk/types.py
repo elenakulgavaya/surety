@@ -206,6 +206,7 @@ class DateTime(String):
 
 class FormattedString(Dictionary):
     pattern = None
+    accepts_string_update = True
 
     @property
     def value(self):

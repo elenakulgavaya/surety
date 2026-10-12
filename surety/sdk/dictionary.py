@@ -20,7 +20,9 @@ def _get_field_cache(cls):
 
 def _needs_json_loads(current, update):
     return (
-        (isinstance(current, Dictionary) and not isinstance(update, dict))
+        (isinstance(current, Dictionary)
+         and not current.accepts_string_update
+         and not isinstance(update, dict))
         or (isinstance(current, Array) and not isinstance(update, (list, set)))
     )
 
@@ -56,6 +58,8 @@ class _WithValuesDescriptor:
 
 
 class Dictionary(Field):
+    accepts_string_update = False
+
     def __init__(self, name=None, required=True, allow_none=False,
                  is_full=False, _with_data=True):
         self._generated = False
