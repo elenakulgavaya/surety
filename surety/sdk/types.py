@@ -220,6 +220,14 @@ class FormattedString(Dictionary):
 
     def apply_values(self, values):
         if isinstance(values, str):
-            values = parse(self.pattern, values).named
+            parsed = parse(self.pattern, values)
+            values = parsed and parsed.named
 
         return super().apply_values(values)
+
+    def generate_with_values(self, values, is_full):
+        if isinstance(values, str):
+            parsed = parse(self.pattern, values)
+            values = parsed and parsed.named
+
+        return super().generate_with_values(values, is_full)

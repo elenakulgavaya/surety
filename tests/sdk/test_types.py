@@ -263,6 +263,12 @@ def test_formatted_string_with_fmt_str():
     assert ref.Id.value == '14'
 
 
+def test_no_instance_formatted_string_with_fmt_str():
+    ref = Reference.with_values('role/56')
+    assert ref.Kind.value == 'role'
+    assert ref.Id.value == '56'
+
+
 def test_formatted_string_in_dictionary_full_value():
     value = WithReference.with_values({
         WithReference.Ref: {'kind': 'user', 'id': 5}
