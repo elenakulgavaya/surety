@@ -74,6 +74,12 @@ Three Layers
    config
 
 .. toctree::
+   :caption: In Practice
+   :hidden:
+
+   in-practice
+
+.. toctree::
    :caption: Reference
    :hidden:
 

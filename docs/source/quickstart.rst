@@ -69,3 +69,4 @@ Where to Go Next
 - :doc:`api` — API contracts and mocking
 - :doc:`ui` — browser-based UI testing
 - :doc:`db` — database testing
+- :doc:`in-practice` — a real E2E-to-contract migration, step by step

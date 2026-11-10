@@ -206,3 +206,10 @@ It integrates with test runners (pytest). It integrates with CI pipelines. But
 it remains focused on one responsibility:
 
 **Verifying interactions against explicit schemas and contracts.**
+
+See it in practice
+------------------
+
+:doc:`in-practice` walks through a real migration from 20 full-stack E2E tests
+to a contract layer built with Surety — six steps, working CI pipelines, and
+two concrete examples of what breaks with contracts versus without them.
